@@ -9,6 +9,7 @@ import CategoryManager from '@/components/CategoryManager';
 import { useCategories } from '@/hooks/useCategories';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useBudget } from '@/hooks/useBudget';
+import { Category } from '@/types/financial';
 
 const Index = () => {
   const { categories, loading: categoriesLoading, addCategory, updateCategories, refetch: refetchCategories } = useCategories();
@@ -18,7 +19,7 @@ const Index = () => {
   const isLoading = categoriesLoading || transactionsLoading || budgetLoading;
 
   // Handle adding category with async function
-  const handleAddCategory = async (category: Omit<Category, 'id'>) => {
+  const handleAddCategory = async (category: Omit<Category, 'id'>): Promise<string> => {
     const categoryId = await addCategory(category);
     return categoryId || ''; // Return empty string if null
   };
