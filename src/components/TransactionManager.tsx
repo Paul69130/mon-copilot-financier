@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 interface TransactionManagerProps {
   transactions: Transaction[];
   categories: Category[];
-  onAddTransaction: (transaction: Transaction) => void;
+  onAddTransaction: (transaction: Omit<Transaction, 'id'>) => void;
   onUpdateTransaction: (id: string, updates: Partial<Transaction>) => void;
 }
 
@@ -29,7 +29,7 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
     description: '',
     amount: '',
     type: 'expense' as 'income' | 'expense',
-    categoryId: ''
+    category_id: ''
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -57,7 +57,6 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
           const amount = parseFloat(values[amountIndex].replace(/[^-\d.]/g, ''));
           if (!isNaN(amount)) {
             onAddTransaction({
-              id: '',
               date: values[dateIndex].trim(),
               description: values[descIndex].trim(),
               amount: Math.abs(amount),
@@ -88,12 +87,11 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
     }
 
     onAddTransaction({
-      id: '',
       date: newTransaction.date,
       description: newTransaction.description,
       amount: parseFloat(newTransaction.amount),
       type: newTransaction.type,
-      categoryId: newTransaction.categoryId || undefined
+      category_id: newTransaction.category_id || undefined
     });
 
     setNewTransaction({
@@ -101,7 +99,7 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
       description: '',
       amount: '',
       type: 'expense',
-      categoryId: ''
+      category_id: ''
     });
 
     toast({
@@ -110,12 +108,12 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
     });
   };
 
-  const getCategoryName = (categoryId?: string) => {
-    return categories.find(c => c.id === categoryId)?.name || 'Uncategorized';
+  const getCategoryName = (category_id?: string) => {
+    return categories.find(c => c.id === category_id)?.name || 'Uncategorized';
   };
 
-  const getCategoryColor = (categoryId?: string) => {
-    return categories.find(c => c.id === categoryId)?.color || '#6b7280';
+  const getCategoryColor = (category_id?: string) => {
+    return categories.find(c => c.id === category_id)?.color || '#6b7280';
   };
 
   return (
@@ -214,8 +212,8 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
             <div>
               <Label>Category</Label>
               <Select
-                value={newTransaction.categoryId}
-                onValueChange={(value) => setNewTransaction(prev => ({ ...prev, categoryId: value }))}
+                value={newTransaction.category_id}
+                onValueChange={(value) => setNewTransaction(prev => ({ ...prev, category_id: value }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
@@ -275,19 +273,19 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
                             {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toLocaleString()}
                           </p>
                           <Badge
-                            style={{ backgroundColor: getCategoryColor(transaction.categoryId) }}
+                            style={{ backgroundColor: getCategoryColor(transaction.category_id) }}
                             className="text-white text-xs"
                           >
-                            {getCategoryName(transaction.categoryId)}
+                            {getCategoryName(transaction.category_id)}
                           </Badge>
                         </div>
                       </div>
                     </div>
                     <div className="ml-4">
                       <Select
-                        value={transaction.categoryId || ''}
-                        onValueChange={(categoryId) => 
-                          onUpdateTransaction(transaction.id, { categoryId })
+                        value={transaction.category_id || ''}
+                        onValueChange={(category_id) => 
+                          onUpdateTransaction(transaction.id, { category_id })
                         }
                       >
                         <SelectTrigger className="w-40">

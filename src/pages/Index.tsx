@@ -11,11 +11,17 @@ import { useTransactions } from '@/hooks/useTransactions';
 import { useBudget } from '@/hooks/useBudget';
 
 const Index = () => {
-  const { categories, loading: categoriesLoading, addCategory, updateCategories } = useCategories();
-  const { transactions, loading: transactionsLoading, addTransaction, updateTransaction } = useTransactions();
+  const { categories, loading: categoriesLoading, addCategory, updateCategories, refetch: refetchCategories } = useCategories();
+  const { transactions, loading: transactionsLoading, addTransaction, updateTransaction, refetch: refetchTransactions } = useTransactions();
   const { budget, loading: budgetLoading, updateBudget } = useBudget();
 
   const isLoading = categoriesLoading || transactionsLoading || budgetLoading;
+
+  // Handle adding category with async function
+  const handleAddCategory = async (category: Omit<Category, 'id'>) => {
+    const categoryId = await addCategory(category);
+    return categoryId || ''; // Return empty string if null
+  };
 
   if (isLoading) {
     return (
@@ -76,7 +82,7 @@ const Index = () => {
             <CategoryManager
               categories={categories}
               onUpdateCategories={updateCategories}
-              onAddCategory={addCategory}
+              onAddCategory={handleAddCategory}
             />
           </TabsContent>
         </Tabs>
