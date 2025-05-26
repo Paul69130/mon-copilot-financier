@@ -28,15 +28,15 @@ const BudgetAnalysis: React.FC<BudgetAnalysisProps> = ({
     const numAmount = parseFloat(amount);
     if (!isNaN(numAmount)) {
       const updatedBudget = budget.map(b => 
-        b.categoryId === categoryId 
-          ? { ...b, budgetAmount: numAmount }
+        b.category_id === categoryId 
+          ? { ...b, budget_amount: numAmount }
           : b
       );
       
-      if (!budget.find(b => b.categoryId === categoryId)) {
+      if (!budget.find(b => b.category_id === categoryId)) {
         updatedBudget.push({
-          categoryId,
-          budgetAmount: numAmount,
+          category_id: categoryId,
+          budget_amount: numAmount,
           period: 'monthly'
         });
       }
@@ -47,10 +47,10 @@ const BudgetAnalysis: React.FC<BudgetAnalysisProps> = ({
   };
 
   const getBudgetAnalysis = (categoryId: string) => {
-    const categoryTransactions = transactions.filter(t => t.categoryId === categoryId);
+    const categoryTransactions = transactions.filter(t => t.category_id === categoryId);
     const actualAmount = categoryTransactions.reduce((sum, t) => sum + t.amount, 0);
-    const budgetItem = budget.find(b => b.categoryId === categoryId);
-    const budgetAmount = budgetItem?.budgetAmount || 0;
+    const budgetItem = budget.find(b => b.category_id === categoryId);
+    const budgetAmount = budgetItem?.budget_amount || 0;
     
     const percentage = budgetAmount > 0 ? (actualAmount / budgetAmount) * 100 : 0;
     const variance = actualAmount - budgetAmount;
@@ -80,7 +80,7 @@ const BudgetAnalysis: React.FC<BudgetAnalysisProps> = ({
     return analysis.status === 'over';
   });
 
-  const totalBudget = budget.reduce((sum, b) => sum + b.budgetAmount, 0);
+  const totalBudget = budget.reduce((sum, b) => sum + b.budget_amount, 0);
   const totalActual = transactions.reduce((sum, t) => sum + t.amount, 0);
   const totalVariance = totalActual - totalBudget;
 

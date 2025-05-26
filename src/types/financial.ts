@@ -4,9 +4,11 @@ export interface Transaction {
   date: string;
   description: string;
   amount: number;
-  categoryId?: string;
+  category_id?: string;
   type: 'income' | 'expense';
   source?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Category {
@@ -14,12 +16,17 @@ export interface Category {
   name: string;
   color: string;
   type: 'income' | 'expense';
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface BudgetItem {
-  categoryId: string;
-  budgetAmount: number;
+  id?: string;
+  category_id: string;
+  budget_amount: number;
   period: 'monthly' | 'quarterly' | 'yearly';
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface FinancialSummary {

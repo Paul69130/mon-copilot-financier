@@ -1,46 +1,32 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DashboardOverview from '@/components/DashboardOverview';
 import TransactionManager from '@/components/TransactionManager';
 import BudgetAnalysis from '@/components/BudgetAnalysis';
 import CategoryManager from '@/components/CategoryManager';
-import { Transaction, Category, BudgetItem } from '@/types/financial';
+import { useCategories } from '@/hooks/useCategories';
+import { useTransactions } from '@/hooks/useTransactions';
+import { useBudget } from '@/hooks/useBudget';
 
 const Index = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [categories, setCategories] = useState<Category[]>([
-    { id: '1', name: 'Revenue', color: '#10b981', type: 'income' },
-    { id: '2', name: 'Marketing', color: '#f59e0b', type: 'expense' },
-    { id: '3', name: 'Operations', color: '#ef4444', type: 'expense' },
-    { id: '4', name: 'Travel', color: '#8b5cf6', type: 'expense' },
-    { id: '5', name: 'Office Supplies', color: '#06b6d4', type: 'expense' },
-  ]);
-  
-  const [budget, setBudget] = useState<BudgetItem[]>([
-    { categoryId: '1', budgetAmount: 50000, period: 'monthly' },
-    { categoryId: '2', budgetAmount: 15000, period: 'monthly' },
-    { categoryId: '3', budgetAmount: 25000, period: 'monthly' },
-    { categoryId: '4', budgetAmount: 5000, period: 'monthly' },
-    { categoryId: '5', budgetAmount: 3000, period: 'monthly' },
-  ]);
+  const { categories, loading: categoriesLoading, addCategory, updateCategories } = useCategories();
+  const { transactions, loading: transactionsLoading, addTransaction, updateTransaction } = useTransactions();
+  const { budget, loading: budgetLoading, updateBudget } = useBudget();
 
-  const addTransaction = (transaction: Transaction) => {
-    setTransactions(prev => [...prev, { ...transaction, id: Date.now().toString() }]);
-  };
+  const isLoading = categoriesLoading || transactionsLoading || budgetLoading;
 
-  const updateTransaction = (id: string, updates: Partial<Transaction>) => {
-    setTransactions(prev => 
-      prev.map(t => t.id === id ? { ...t, ...updates } : t)
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-lg text-gray-600">Loading financial data...</p>
+        </div>
+      </div>
     );
-  };
-
-  const addCategory = (category: Omit<Category, 'id'>) => {
-    const newCategory = { ...category, id: Date.now().toString() };
-    setCategories(prev => [...prev, newCategory]);
-    return newCategory.id;
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -82,14 +68,14 @@ const Index = () => {
               transactions={transactions}
               categories={categories}
               budget={budget}
-              onUpdateBudget={setBudget}
+              onUpdateBudget={updateBudget}
             />
           </TabsContent>
 
           <TabsContent value="categories" className="space-y-6">
             <CategoryManager
               categories={categories}
-              onUpdateCategories={setCategories}
+              onUpdateCategories={updateCategories}
               onAddCategory={addCategory}
             />
           </TabsContent>

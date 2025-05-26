@@ -26,20 +26,20 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 
   const netIncome = totalIncome - totalExpenses;
 
-  const totalBudget = budget.reduce((sum, b) => sum + b.budgetAmount, 0);
+  const totalBudget = budget.reduce((sum, b) => sum + b.budget_amount, 0);
   const budgetVariance = totalExpenses - budget
-    .filter(b => categories.find(c => c.id === b.categoryId)?.type === 'expense')
-    .reduce((sum, b) => sum + b.budgetAmount, 0);
+    .filter(b => categories.find(c => c.id === b.category_id)?.type === 'expense')
+    .reduce((sum, b) => sum + b.budget_amount, 0);
 
   const categoryData = categories.map(category => {
-    const categoryTransactions = transactions.filter(t => t.categoryId === category.id);
+    const categoryTransactions = transactions.filter(t => t.category_id === category.id);
     const total = categoryTransactions.reduce((sum, t) => sum + t.amount, 0);
-    const budgetItem = budget.find(b => b.categoryId === category.id);
+    const budgetItem = budget.find(b => b.category_id === category.id);
     
     return {
       name: category.name,
       actual: total,
-      budget: budgetItem?.budgetAmount || 0,
+      budget: budgetItem?.budget_amount || 0,
       color: category.color
     };
   });
@@ -48,7 +48,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
     .filter(c => c.type === 'expense')
     .map(category => {
       const total = transactions
-        .filter(t => t.categoryId === category.id)
+        .filter(t => t.category_id === category.id)
         .reduce((sum, t) => sum + t.amount, 0);
       return {
         name: category.name,
