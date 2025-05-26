@@ -24,6 +24,17 @@ const BudgetAnalysis: React.FC<BudgetAnalysisProps> = ({
 }) => {
   const [editingBudget, setEditingBudget] = useState<{ [key: string]: string }>({});
 
+  // Helper functions to calculate amounts from debit/credit
+  const calculateAmount = (transaction: Transaction): number => {
+    const credit = transaction.credit || 0;
+    const debit = transaction.debit || 0;
+    return credit - debit;
+  };
+
+  const getAbsoluteAmount = (transaction: Transaction): number => {
+    return Math.abs(calculateAmount(transaction));
+  };
+
   const updateBudgetAmount = (categoryId: string, amount: string) => {
     const numAmount = parseFloat(amount);
     if (!isNaN(numAmount)) {
@@ -47,8 +58,9 @@ const BudgetAnalysis: React.FC<BudgetAnalysisProps> = ({
   };
 
   const getBudgetAnalysis = (categoryId: string) => {
-    const categoryTransactions = transactions.filter(t => t.category_id === categoryId);
-    const actualAmount = categoryTransactions.reduce((sum, t) => sum + t.amount, 0);
+    // Note: Since transactions no longer have category_id, actual amount will be 0
+    // until categories are properly linked to transactions
+    const actualAmount = 0;
     const budgetItem = budget.find(b => b.category_id === categoryId);
     const budgetAmount = budgetItem?.budget_amount || 0;
     
@@ -81,7 +93,7 @@ const BudgetAnalysis: React.FC<BudgetAnalysisProps> = ({
   });
 
   const totalBudget = budget.reduce((sum, b) => sum + b.budget_amount, 0);
-  const totalActual = transactions.reduce((sum, t) => sum + t.amount, 0);
+  const totalActual = transactions.reduce((sum, t) => sum + getAbsoluteAmount(t), 0);
   const totalVariance = totalActual - totalBudget;
 
   return (

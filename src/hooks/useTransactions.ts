@@ -12,7 +12,7 @@ export const useTransactions = () => {
       const { data, error } = await supabase
         .from('transactions')
         .select('*')
-        .order('date', { ascending: false });
+        .order('ecriture_date', { ascending: false });
       
       if (error) {
         console.error('Error fetching transactions:', error);

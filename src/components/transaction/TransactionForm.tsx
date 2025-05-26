@@ -17,9 +17,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, onAddTran
   const [newTransaction, setNewTransaction] = useState({
     ecriture_date: new Date().toISOString().split('T')[0],
     ecriture_lib: '',
-    amount: '',
-    type: 'expense' as 'income' | 'expense',
-    category_id: '',
     journal_code: '',
     journal_lib: '',
     compte_num: '',
@@ -31,27 +28,19 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, onAddTran
   const { toast } = useToast();
 
   const handleAddTransaction = () => {
-    if (!newTransaction.ecriture_lib || !newTransaction.amount) {
+    if (!newTransaction.ecriture_lib) {
       toast({
         title: "Error",
-        description: "Please fill in at least the description and amount fields.",
+        description: "Please fill in at least the description field.",
         variant: "destructive"
       });
       return;
     }
 
-    const amount = parseFloat(newTransaction.amount);
     const debit = newTransaction.debit ? parseFloat(newTransaction.debit) : undefined;
     const credit = newTransaction.credit ? parseFloat(newTransaction.credit) : undefined;
 
     onAddTransaction({
-      // Primary fields (for compatibility)
-      date: newTransaction.ecriture_date,
-      description: newTransaction.ecriture_lib,
-      amount: amount,
-      type: newTransaction.type,
-      category_id: newTransaction.category_id || undefined,
-      
       // French accounting fields
       ecriture_date: newTransaction.ecriture_date,
       ecriture_lib: newTransaction.ecriture_lib,
@@ -67,9 +56,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, onAddTran
     setNewTransaction({
       ecriture_date: new Date().toISOString().split('T')[0],
       ecriture_lib: '',
-      amount: '',
-      type: 'expense',
-      category_id: '',
       journal_code: '',
       journal_lib: '',
       compte_num: '',
@@ -160,18 +146,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, onAddTran
           </div>
 
           {/* Amount fields */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <Label htmlFor="amount">Montant</Label>
-              <Input
-                id="amount"
-                type="number"
-                step="0.01"
-                placeholder="0.00"
-                value={newTransaction.amount}
-                onChange={(e) => setNewTransaction(prev => ({ ...prev, amount: e.target.value }))}
-              />
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="debit">Débit</Label>
               <Input
@@ -202,47 +177,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, onAddTran
                 value={newTransaction.piece_ref}
                 onChange={(e) => setNewTransaction(prev => ({ ...prev, piece_ref: e.target.value }))}
               />
-            </div>
-          </div>
-
-          {/* Type and Category */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label>Type</Label>
-              <Select
-                value={newTransaction.type}
-                onValueChange={(value: 'income' | 'expense') => 
-                  setNewTransaction(prev => ({ ...prev, type: value }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="income">Recette</SelectItem>
-                  <SelectItem value="expense">Dépense</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Catégorie</Label>
-              <Select
-                value={newTransaction.category_id}
-                onValueChange={(value) => setNewTransaction(prev => ({ ...prev, category_id: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner une catégorie" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories
-                    .filter(c => c.type === newTransaction.type)
-                    .map(category => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
             </div>
           </div>
 

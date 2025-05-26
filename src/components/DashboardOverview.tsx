@@ -16,13 +16,29 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   categories,
   budget
 }) => {
+  // Helper functions to calculate amounts and types from debit/credit
+  const calculateAmount = (transaction: Transaction): number => {
+    const credit = transaction.credit || 0;
+    const debit = transaction.debit || 0;
+    return credit - debit;
+  };
+
+  const getTransactionType = (transaction: Transaction): 'income' | 'expense' => {
+    const amount = calculateAmount(transaction);
+    return amount >= 0 ? 'income' : 'expense';
+  };
+
+  const getAbsoluteAmount = (transaction: Transaction): number => {
+    return Math.abs(calculateAmount(transaction));
+  };
+
   const totalIncome = transactions
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .filter(t => getTransactionType(t) === 'income')
+    .reduce((sum, t) => sum + getAbsoluteAmount(t), 0);
 
   const totalExpenses = transactions
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .filter(t => getTransactionType(t) === 'expense')
+    .reduce((sum, t) => sum + getAbsoluteAmount(t), 0);
 
   const netIncome = totalIncome - totalExpenses;
 
@@ -31,14 +47,14 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
     .filter(b => categories.find(c => c.id === b.category_id)?.type === 'expense')
     .reduce((sum, b) => sum + b.budget_amount, 0);
 
+  // Note: Since transactions no longer have category_id, we'll show basic category data
+  // without transaction mapping until categories are properly linked
   const categoryData = categories.map(category => {
-    const categoryTransactions = transactions.filter(t => t.category_id === category.id);
-    const total = categoryTransactions.reduce((sum, t) => sum + t.amount, 0);
     const budgetItem = budget.find(b => b.category_id === category.id);
     
     return {
       name: category.name,
-      actual: total,
+      actual: 0, // Will be 0 until we have category mapping
       budget: budgetItem?.budget_amount || 0,
       color: category.color
     };
@@ -47,12 +63,9 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   const expenseData = categories
     .filter(c => c.type === 'expense')
     .map(category => {
-      const total = transactions
-        .filter(t => t.category_id === category.id)
-        .reduce((sum, t) => sum + t.amount, 0);
       return {
         name: category.name,
-        value: total,
+        value: 0, // Will be 0 until we have category mapping
         color: category.color
       };
     })
