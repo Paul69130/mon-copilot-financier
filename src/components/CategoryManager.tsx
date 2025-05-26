@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 interface CategoryManagerProps {
   categories: Category[];
   onUpdateCategories: (categories: Category[]) => void;
-  onAddCategory: (category: Omit<Category, 'id'>) => string;
+  onAddCategory: (category: Omit<Category, 'id'>) => Promise<string>;
 }
 
 const CategoryManager: React.FC<CategoryManagerProps> = ({
@@ -28,6 +27,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
     type: 'expense' as 'income' | 'expense'
   });
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
   const { toast } = useToast();
 
   const predefinedColors = [
@@ -35,7 +35,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
     '#06b6d4', '#ec4899', '#84cc16', '#f97316', '#6366f1'
   ];
 
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     if (!newCategory.name.trim()) {
       toast({
         title: "Error",
@@ -45,17 +45,28 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
       return;
     }
 
-    onAddCategory(newCategory);
-    setNewCategory({
-      name: '',
-      color: '#3b82f6',
-      type: 'expense'
-    });
+    setIsAdding(true);
+    try {
+      await onAddCategory(newCategory);
+      setNewCategory({
+        name: '',
+        color: '#3b82f6',
+        type: 'expense'
+      });
 
-    toast({
-      title: "Category Added",
-      description: `Category "${newCategory.name}" has been created.`,
-    });
+      toast({
+        title: "Category Added",
+        description: `Category "${newCategory.name}" has been created.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add category. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   const handleEditCategory = (category: Category) => {
@@ -126,6 +137,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
                 placeholder="Enter category name"
                 value={newCategory.name}
                 onChange={(e) => setNewCategory(prev => ({ ...prev, name: e.target.value }))}
+                disabled={isAdding}
               />
             </div>
             <div>
@@ -135,6 +147,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
                 onValueChange={(value: 'income' | 'expense') => 
                   setNewCategory(prev => ({ ...prev, type: value }))
                 }
+                disabled={isAdding}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -146,8 +159,8 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
               </Select>
             </div>
             <div className="flex items-end">
-              <Button onClick={handleAddCategory} className="w-full">
-                Add Category
+              <Button onClick={handleAddCategory} className="w-full" disabled={isAdding}>
+                {isAdding ? 'Adding...' : 'Add Category'}
               </Button>
             </div>
           </div>
@@ -162,6 +175,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
                     newCategory.color === color ? 'border-gray-800' : 'border-gray-300'
                   }`}
                   style={{ backgroundColor: color }}
+                  disabled={isAdding}
                 />
               ))}
             </div>

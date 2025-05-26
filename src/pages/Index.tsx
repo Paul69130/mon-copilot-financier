@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -83,7 +82,7 @@ const Index = () => {
             <CategoryManager
               categories={categories}
               onUpdateCategories={updateCategories}
-              onAddCategory={handleAddCategory}
+              onAddCategory={addCategory}
             />
           </TabsContent>
         </Tabs>
