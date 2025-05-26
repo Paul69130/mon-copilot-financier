@@ -16,30 +16,31 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   categories,
   budget
 }) => {
-  // Helper functions to calculate amounts and types from debit/credit
-  const calculateAmount = (transaction: Transaction): number => {
+  // Helper function to get category by id
+  const getCategoryById = (categoryId: string | undefined) => {
+    return categories.find(cat => cat.id === categoryId);
+  };
+
+  // Helper function to calculate transaction amount from debit/credit
+  const calculateTransactionAmount = (transaction: Transaction): number => {
     const credit = transaction.credit || 0;
     const debit = transaction.debit || 0;
-    return credit - debit;
+    return Math.abs(credit - debit);
   };
 
-  const getTransactionType = (transaction: Transaction): 'income' | 'expense' => {
-    const amount = calculateAmount(transaction);
-    return amount >= 0 ? 'income' : 'expense';
-  };
+  // Filter transactions by category type and calculate totals
+  const incomeTransactions = transactions.filter(t => {
+    const category = getCategoryById(t.category_id);
+    return category?.type === 'income';
+  });
 
-  const getAbsoluteAmount = (transaction: Transaction): number => {
-    return Math.abs(calculateAmount(transaction));
-  };
+  const expenseTransactions = transactions.filter(t => {
+    const category = getCategoryById(t.category_id);
+    return category?.type === 'expense';
+  });
 
-  const totalIncome = transactions
-    .filter(t => getTransactionType(t) === 'income')
-    .reduce((sum, t) => sum + getAbsoluteAmount(t), 0);
-
-  const totalExpenses = transactions
-    .filter(t => getTransactionType(t) === 'expense')
-    .reduce((sum, t) => sum + getAbsoluteAmount(t), 0);
-
+  const totalIncome = incomeTransactions.reduce((sum, t) => sum + calculateTransactionAmount(t), 0);
+  const totalExpenses = expenseTransactions.reduce((sum, t) => sum + calculateTransactionAmount(t), 0);
   const netIncome = totalIncome - totalExpenses;
 
   const totalBudget = budget.reduce((sum, b) => sum + b.budget_amount, 0);
@@ -47,14 +48,15 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
     .filter(b => categories.find(c => c.id === b.category_id)?.type === 'expense')
     .reduce((sum, b) => sum + b.budget_amount, 0);
 
-  // Note: Since transactions no longer have category_id, we'll show basic category data
-  // without transaction mapping until categories are properly linked
+  // Category data for charts - now properly using transaction amounts
   const categoryData = categories.map(category => {
     const budgetItem = budget.find(b => b.category_id === category.id);
+    const categoryTransactions = transactions.filter(t => t.category_id === category.id);
+    const actualAmount = categoryTransactions.reduce((sum, t) => sum + calculateTransactionAmount(t), 0);
     
     return {
       name: category.name,
-      actual: 0, // Will be 0 until we have category mapping
+      actual: actualAmount,
       budget: budgetItem?.budget_amount || 0,
       color: category.color
     };
@@ -63,9 +65,12 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   const expenseData = categories
     .filter(c => c.type === 'expense')
     .map(category => {
+      const categoryTransactions = transactions.filter(t => t.category_id === category.id);
+      const value = categoryTransactions.reduce((sum, t) => sum + calculateTransactionAmount(t), 0);
+      
       return {
         name: category.name,
-        value: 0, // Will be 0 until we have category mapping
+        value,
         color: category.color
       };
     })
@@ -90,7 +95,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <CardContent>
             <div className="text-2xl font-bold">${totalIncome.toLocaleString()}</div>
             <p className="text-xs text-green-100">
-              +12% from last month
+              From {incomeTransactions.length} income transactions
             </p>
           </CardContent>
         </Card>
@@ -103,7 +108,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <CardContent>
             <div className="text-2xl font-bold">${totalExpenses.toLocaleString()}</div>
             <p className="text-xs text-red-100">
-              +5% from last month
+              From {expenseTransactions.length} expense transactions
             </p>
           </CardContent>
         </Card>
@@ -116,7 +121,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <CardContent>
             <div className="text-2xl font-bold">${netIncome.toLocaleString()}</div>
             <p className="text-xs text-blue-100">
-              {netIncome > 0 ? '+' : ''}{((netIncome / totalIncome) * 100).toFixed(1)}% margin
+              {netIncome > 0 ? '+' : ''}{totalIncome > 0 ? ((netIncome / totalIncome) * 100).toFixed(1) : '0'}% margin
             </p>
           </CardContent>
         </Card>
@@ -204,7 +209,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
-      </Card>
+      </div>
     </div>
   );
 };

@@ -24,15 +24,16 @@ const BudgetAnalysis: React.FC<BudgetAnalysisProps> = ({
 }) => {
   const [editingBudget, setEditingBudget] = useState<{ [key: string]: string }>({});
 
-  // Helper functions to calculate amounts from debit/credit
-  const calculateAmount = (transaction: Transaction): number => {
+  // Helper function to calculate transaction amount from debit/credit
+  const calculateTransactionAmount = (transaction: Transaction): number => {
     const credit = transaction.credit || 0;
     const debit = transaction.debit || 0;
-    return credit - debit;
+    return Math.abs(credit - debit);
   };
 
-  const getAbsoluteAmount = (transaction: Transaction): number => {
-    return Math.abs(calculateAmount(transaction));
+  // Helper function to get category by id
+  const getCategoryById = (categoryId: string | undefined) => {
+    return categories.find(cat => cat.id === categoryId);
   };
 
   const updateBudgetAmount = (categoryId: string, amount: string) => {
@@ -58,9 +59,10 @@ const BudgetAnalysis: React.FC<BudgetAnalysisProps> = ({
   };
 
   const getBudgetAnalysis = (categoryId: string) => {
-    // Note: Since transactions no longer have category_id, actual amount will be 0
-    // until categories are properly linked to transactions
-    const actualAmount = 0;
+    // Get actual amount from transactions linked to this category
+    const categoryTransactions = transactions.filter(t => t.category_id === categoryId);
+    const actualAmount = categoryTransactions.reduce((sum, t) => sum + calculateTransactionAmount(t), 0);
+    
     const budgetItem = budget.find(b => b.category_id === categoryId);
     const budgetAmount = budgetItem?.budget_amount || 0;
     
@@ -93,7 +95,13 @@ const BudgetAnalysis: React.FC<BudgetAnalysisProps> = ({
   });
 
   const totalBudget = budget.reduce((sum, b) => sum + b.budget_amount, 0);
-  const totalActual = transactions.reduce((sum, t) => sum + getAbsoluteAmount(t), 0);
+  
+  // Calculate total actual based on category-filtered transactions
+  const totalActual = categories.reduce((sum, category) => {
+    const categoryTransactions = transactions.filter(t => t.category_id === category.id);
+    return sum + categoryTransactions.reduce((catSum, t) => catSum + calculateTransactionAmount(t), 0);
+  }, 0);
+  
   const totalVariance = totalActual - totalBudget;
 
   return (
