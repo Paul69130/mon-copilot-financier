@@ -1,3 +1,4 @@
+
 import { Transaction, Category, BudgetItem } from '@/types/financial';
 
 export const useFinancialCalculations = (
@@ -17,24 +18,18 @@ export const useFinancialCalculations = (
     return Math.abs(credit - debit);
   };
 
-  // Filter income transactions by compte_num starting with "7"
+  // Filter transactions by category type
   const incomeTransactions = transactions.filter(t => {
-    return t.compte_num?.startsWith('7');
+    const category = getCategoryById(t.category_id);
+    return category?.type === 'income';
   });
 
-  // Filter expense transactions by category type (keeping existing logic for expenses)
   const expenseTransactions = transactions.filter(t => {
     const category = getCategoryById(t.category_id);
     return category?.type === 'expense';
   });
 
-  // Calculate total income: sum of credits minus sum of debits for compte_num starting with "7"
-  const totalIncome = incomeTransactions.reduce((sum, t) => {
-    const credit = t.credit || 0;
-    const debit = t.debit || 0;
-    return sum + (credit - debit);
-  }, 0);
-
+  const totalIncome = incomeTransactions.reduce((sum, t) => sum + calculateTransactionAmount(t), 0);
   const totalExpenses = expenseTransactions.reduce((sum, t) => sum + calculateTransactionAmount(t), 0);
   const netIncome = totalIncome - totalExpenses;
 
