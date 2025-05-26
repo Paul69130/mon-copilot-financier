@@ -82,7 +82,7 @@ const CSVImportCard: React.FC<CSVImportCardProps> = ({ onAddTransaction }) => {
           Import Transactions
         </CardTitle>
         <CardDescription>
-          Upload a CSV or Excel file with columns: date, description, amount
+          Upload a CSV or Excel file with French accounting format (ecriture_date, ecriture_lib, debit, credit)
         </CardDescription>
       </CardHeader>
       <CardContent>

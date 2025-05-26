@@ -2,7 +2,6 @@
 import React from 'react';
 import { Transaction, Category } from '@/types/financial';
 import CSVImportCard from './transaction/CSVImportCard';
-import TransactionForm from './transaction/TransactionForm';
 import TransactionsList from './transaction/TransactionsList';
 
 interface TransactionManagerProps {
@@ -21,7 +20,6 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
   return (
     <div className="space-y-6">
       <CSVImportCard onAddTransaction={onAddTransaction} />
-      <TransactionForm categories={categories} onAddTransaction={onAddTransaction} />
       <TransactionsList 
         transactions={transactions}
         categories={categories}

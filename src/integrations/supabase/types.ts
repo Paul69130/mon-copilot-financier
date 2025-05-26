@@ -73,18 +73,14 @@ export type Database = {
       }
       transactions: {
         Row: {
-          amount: number
-          category_id: string | null
           comp_aux_lib: string | null
           comp_aux_num: string | null
           compte_lib: string | null
           compte_num: string | null
           created_at: string | null
           credit: number | null
-          date: string
           date_let: string | null
           debit: number | null
-          description: string
           ecriture_date: string
           ecriture_let: string | null
           ecriture_lib: string
@@ -99,23 +95,18 @@ export type Database = {
           piece_date: string | null
           piece_ref: string | null
           source: string | null
-          type: Database["public"]["Enums"]["transaction_type"]
           updated_at: string | null
           valid_date: string | null
         }
         Insert: {
-          amount: number
-          category_id?: string | null
           comp_aux_lib?: string | null
           comp_aux_num?: string | null
           compte_lib?: string | null
           compte_num?: string | null
           created_at?: string | null
           credit?: number | null
-          date: string
           date_let?: string | null
           debit?: number | null
-          description: string
           ecriture_date: string
           ecriture_let?: string | null
           ecriture_lib: string
@@ -130,23 +121,18 @@ export type Database = {
           piece_date?: string | null
           piece_ref?: string | null
           source?: string | null
-          type: Database["public"]["Enums"]["transaction_type"]
           updated_at?: string | null
           valid_date?: string | null
         }
         Update: {
-          amount?: number
-          category_id?: string | null
           comp_aux_lib?: string | null
           comp_aux_num?: string | null
           compte_lib?: string | null
           compte_num?: string | null
           created_at?: string | null
           credit?: number | null
-          date?: string
           date_let?: string | null
           debit?: number | null
-          description?: string
           ecriture_date?: string
           ecriture_let?: string | null
           ecriture_lib?: string
@@ -161,19 +147,10 @@ export type Database = {
           piece_date?: string | null
           piece_ref?: string | null
           source?: string | null
-          type?: Database["public"]["Enums"]["transaction_type"]
           updated_at?: string | null
           valid_date?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "transactions_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {

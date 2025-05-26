@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Transaction, Category } from '@/types/financial';
 
@@ -16,20 +15,19 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   categories, 
   onUpdateTransaction 
 }) => {
-  const getCategoryName = (category_id?: string) => {
-    return categories.find(c => c.id === category_id)?.name || 'Uncategorized';
+  const calculateAmount = (transaction: Transaction): number => {
+    const credit = transaction.credit || 0;
+    const debit = transaction.debit || 0;
+    return credit - debit;
   };
 
-  const getCategoryColor = (category_id?: string) => {
-    return categories.find(c => c.id === category_id)?.color || '#6b7280';
+  const getTransactionType = (transaction: Transaction): 'income' | 'expense' => {
+    const amount = calculateAmount(transaction);
+    return amount >= 0 ? 'income' : 'expense';
   };
 
-  const getDisplayDate = (transaction: Transaction) => {
-    return transaction.ecriture_date || transaction.date;
-  };
-
-  const getDisplayDescription = (transaction: Transaction) => {
-    return transaction.ecriture_lib || transaction.description;
+  const getDisplayAmount = (transaction: Transaction): number => {
+    return Math.abs(calculateAmount(transaction));
   };
 
   return (
@@ -48,73 +46,54 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
             </p>
           ) : (
             transactions
-              .sort((a, b) => new Date(getDisplayDate(b)).getTime() - new Date(getDisplayDate(a)).getTime())
-              .map((transaction) => (
-                <div
-                  key={transaction.id}
-                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1">
-                        <p className="font-medium">{getDisplayDescription(transaction)}</p>
-                        <div className="text-sm text-gray-500 space-y-1">
-                          <p>{getDisplayDate(transaction)}</p>
-                          {transaction.journal_code && (
-                            <p>Journal: {transaction.journal_code} - {transaction.journal_lib}</p>
-                          )}
-                          {transaction.compte_num && (
-                            <p>Compte: {transaction.compte_num} - {transaction.compte_lib}</p>
-                          )}
-                          {transaction.piece_ref && (
-                            <p>Pièce: {transaction.piece_ref}</p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className={`font-semibold ${
-                          transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                        }`}>
-                          {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toLocaleString()}
-                        </p>
-                        {(transaction.debit || transaction.credit) && (
-                          <div className="text-xs text-gray-500">
-                            {transaction.debit && <p>D: ${transaction.debit.toLocaleString()}</p>}
-                            {transaction.credit && <p>C: ${transaction.credit.toLocaleString()}</p>}
+              .sort((a, b) => new Date(b.ecriture_date).getTime() - new Date(a.ecriture_date).getTime())
+              .map((transaction) => {
+                const transactionType = getTransactionType(transaction);
+                const displayAmount = getDisplayAmount(transaction);
+                
+                return (
+                  <div
+                    key={transaction.id}
+                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1">
+                          <p className="font-medium">{transaction.ecriture_lib}</p>
+                          <div className="text-sm text-gray-500 space-y-1">
+                            <p>{transaction.ecriture_date}</p>
+                            {transaction.journal_code && (
+                              <p>Journal: {transaction.journal_code} - {transaction.journal_lib}</p>
+                            )}
+                            {transaction.compte_num && (
+                              <p>Compte: {transaction.compte_num} - {transaction.compte_lib}</p>
+                            )}
+                            {transaction.piece_ref && (
+                              <p>Pièce: {transaction.piece_ref}</p>
+                            )}
                           </div>
-                        )}
-                        <Badge
-                          style={{ backgroundColor: getCategoryColor(transaction.category_id) }}
-                          className="text-white text-xs"
-                        >
-                          {getCategoryName(transaction.category_id)}
-                        </Badge>
+                        </div>
+                        <div className="text-right">
+                          <p className={`font-semibold ${
+                            transactionType === 'income' ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {transactionType === 'income' ? '+' : '-'}${displayAmount.toLocaleString()}
+                          </p>
+                          {(transaction.debit || transaction.credit) && (
+                            <div className="text-xs text-gray-500">
+                              {transaction.debit && <p>D: ${transaction.debit.toLocaleString()}</p>}
+                              {transaction.credit && <p>C: ${transaction.credit.toLocaleString()}</p>}
+                            </div>
+                          )}
+                          <Badge className="text-white text-xs bg-gray-500">
+                            {transactionType === 'income' ? 'Income' : 'Expense'}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div className="ml-4">
-                    <Select
-                      value={transaction.category_id || ''}
-                      onValueChange={(category_id) => 
-                        onUpdateTransaction(transaction.id, { category_id })
-                      }
-                    >
-                      <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories
-                          .filter(c => c.type === transaction.type)
-                          .map(category => (
-                            <SelectItem key={category.id} value={category.id}>
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              ))
+                );
+              })
           )}
         </div>
       </CardContent>

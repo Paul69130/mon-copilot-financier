@@ -71,32 +71,23 @@ export const processTransactionData = (
     const creditValue = creditIndex !== -1 ? 
       parseFloat(row[headers[creditIndex]]?.toString().replace(/[^-\d.]/g, '') || '0') : 0;
 
-    // Calculate amount as credit minus debit
-    let amount = creditValue - debitValue;
-    let type: 'income' | 'expense' = amount >= 0 ? 'income' : 'expense';
-    amount = Math.abs(amount);
+    // Calculate amount as credit minus debit (but don't store it, just use for validation)
+    let calculatedAmount = creditValue - debitValue;
 
-    // If no debit/credit but there's a direct amount field, use that
+    // If no debit/credit but there's a direct amount field, use that for calculation
     if (debitValue === 0 && creditValue === 0 && amountIndex !== -1) {
-      const amountValue = parseFloat(row[headers[amountIndex]]?.toString().replace(/[^-\d.]/g, '') || '0');
-      amount = Math.abs(amountValue);
-      type = amountValue < 0 ? 'expense' : 'income';
+      calculatedAmount = parseFloat(row[headers[amountIndex]]?.toString().replace(/[^-\d.]/g, '') || '0');
     }
 
-    if (!isNaN(amount) && amount > 0) {
+    // Only import if we have a valid amount
+    if (!isNaN(calculatedAmount) && calculatedAmount !== 0) {
       const transaction: Omit<Transaction, 'id'> = {
-        // Primary fields (for compatibility)
-        date: ecritureDate.toString(),
-        description: ecritureLib.toString(),
-        amount: amount,
-        type: type,
-        source: 'file-import',
-        
-        // New French accounting fields
+        // Primary French accounting fields
         ecriture_date: ecritureDate.toString(),
         ecriture_lib: ecritureLib.toString(),
         debit: debitValue || undefined,
         credit: creditValue || undefined,
+        source: 'file-import'
       };
 
       // Add optional fields if they exist

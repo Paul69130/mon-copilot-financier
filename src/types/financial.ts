@@ -1,15 +1,11 @@
+
 export interface Transaction {
   id: string;
-  date: string; // Keep for backward compatibility
-  description: string; // Keep for backward compatibility
-  amount: number;
-  category_id?: string;
-  type: 'income' | 'expense';
   source?: string;
   created_at?: string;
   updated_at?: string;
   
-  // New French accounting fields
+  // French accounting fields (primary)
   journal_code?: string;
   journal_lib?: string;
   ecriture_num?: string;
