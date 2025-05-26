@@ -209,7 +209,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
-      </div>
+      </Card>
     </div>
   );
 };
