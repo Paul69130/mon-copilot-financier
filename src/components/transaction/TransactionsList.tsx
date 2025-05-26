@@ -24,6 +24,14 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
     return categories.find(c => c.id === category_id)?.color || '#6b7280';
   };
 
+  const getDisplayDate = (transaction: Transaction) => {
+    return transaction.ecriture_date || transaction.date;
+  };
+
+  const getDisplayDescription = (transaction: Transaction) => {
+    return transaction.ecriture_lib || transaction.description;
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -40,7 +48,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
             </p>
           ) : (
             transactions
-              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+              .sort((a, b) => new Date(getDisplayDate(b)).getTime() - new Date(getDisplayDate(a)).getTime())
               .map((transaction) => (
                 <div
                   key={transaction.id}
@@ -49,8 +57,19 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
                       <div className="flex-1">
-                        <p className="font-medium">{transaction.description}</p>
-                        <p className="text-sm text-gray-500">{transaction.date}</p>
+                        <p className="font-medium">{getDisplayDescription(transaction)}</p>
+                        <div className="text-sm text-gray-500 space-y-1">
+                          <p>{getDisplayDate(transaction)}</p>
+                          {transaction.journal_code && (
+                            <p>Journal: {transaction.journal_code} - {transaction.journal_lib}</p>
+                          )}
+                          {transaction.compte_num && (
+                            <p>Compte: {transaction.compte_num} - {transaction.compte_lib}</p>
+                          )}
+                          {transaction.piece_ref && (
+                            <p>Pièce: {transaction.piece_ref}</p>
+                          )}
+                        </div>
                       </div>
                       <div className="text-right">
                         <p className={`font-semibold ${
@@ -58,6 +77,12 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                         }`}>
                           {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toLocaleString()}
                         </p>
+                        {(transaction.debit || transaction.credit) && (
+                          <div className="text-xs text-gray-500">
+                            {transaction.debit && <p>D: ${transaction.debit.toLocaleString()}</p>}
+                            {transaction.credit && <p>C: ${transaction.credit.toLocaleString()}</p>}
+                          </div>
+                        )}
                         <Badge
                           style={{ backgroundColor: getCategoryColor(transaction.category_id) }}
                           className="text-white text-xs"

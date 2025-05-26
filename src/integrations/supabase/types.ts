@@ -75,35 +75,95 @@ export type Database = {
         Row: {
           amount: number
           category_id: string | null
+          comp_aux_lib: string | null
+          comp_aux_num: string | null
+          compte_lib: string | null
+          compte_num: string | null
           created_at: string | null
+          credit: number | null
           date: string
+          date_let: string | null
+          debit: number | null
           description: string
+          ecriture_date: string
+          ecriture_let: string | null
+          ecriture_lib: string
+          ecriture_num: string | null
           id: string
+          idevise: string | null
+          journal_code: string | null
+          journal_lib: string | null
+          journal_type: string | null
+          montant_devise: number | null
+          num_doc: string | null
+          piece_date: string | null
+          piece_ref: string | null
           source: string | null
           type: Database["public"]["Enums"]["transaction_type"]
           updated_at: string | null
+          valid_date: string | null
         }
         Insert: {
           amount: number
           category_id?: string | null
+          comp_aux_lib?: string | null
+          comp_aux_num?: string | null
+          compte_lib?: string | null
+          compte_num?: string | null
           created_at?: string | null
+          credit?: number | null
           date: string
+          date_let?: string | null
+          debit?: number | null
           description: string
+          ecriture_date: string
+          ecriture_let?: string | null
+          ecriture_lib: string
+          ecriture_num?: string | null
           id?: string
+          idevise?: string | null
+          journal_code?: string | null
+          journal_lib?: string | null
+          journal_type?: string | null
+          montant_devise?: number | null
+          num_doc?: string | null
+          piece_date?: string | null
+          piece_ref?: string | null
           source?: string | null
           type: Database["public"]["Enums"]["transaction_type"]
           updated_at?: string | null
+          valid_date?: string | null
         }
         Update: {
           amount?: number
           category_id?: string | null
+          comp_aux_lib?: string | null
+          comp_aux_num?: string | null
+          compte_lib?: string | null
+          compte_num?: string | null
           created_at?: string | null
+          credit?: number | null
           date?: string
+          date_let?: string | null
+          debit?: number | null
           description?: string
+          ecriture_date?: string
+          ecriture_let?: string | null
+          ecriture_lib?: string
+          ecriture_num?: string | null
           id?: string
+          idevise?: string | null
+          journal_code?: string | null
+          journal_lib?: string | null
+          journal_type?: string | null
+          montant_devise?: number | null
+          num_doc?: string | null
+          piece_date?: string | null
+          piece_ref?: string | null
           source?: string | null
           type?: Database["public"]["Enums"]["transaction_type"]
           updated_at?: string | null
+          valid_date?: string | null
         }
         Relationships: [
           {
