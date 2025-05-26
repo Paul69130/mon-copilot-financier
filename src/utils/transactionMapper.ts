@@ -65,22 +65,19 @@ export const processTransactionData = (
     
     if (!ecritureDate || !ecritureLib) continue;
 
-    // Calculate amount from debit/credit or use direct amount
-    let amount = 0;
-    let type: 'income' | 'expense' = 'expense';
+    // Parse debit and credit values
+    const debitValue = debitIndex !== -1 ? 
+      parseFloat(row[headers[debitIndex]]?.toString().replace(/[^-\d.]/g, '') || '0') : 0;
+    const creditValue = creditIndex !== -1 ? 
+      parseFloat(row[headers[creditIndex]]?.toString().replace(/[^-\d.]/g, '') || '0') : 0;
 
-    if (debitIndex !== -1 && creditIndex !== -1) {
-      const debit = parseFloat(row[headers[debitIndex]]?.toString().replace(/[^-\d.]/g, '') || '0');
-      const credit = parseFloat(row[headers[creditIndex]]?.toString().replace(/[^-\d.]/g, '') || '0');
-      
-      if (debit > 0) {
-        amount = debit;
-        type = 'expense';
-      } else if (credit > 0) {
-        amount = credit;
-        type = 'income';
-      }
-    } else if (amountIndex !== -1) {
+    // Calculate amount as credit minus debit
+    let amount = creditValue - debitValue;
+    let type: 'income' | 'expense' = amount >= 0 ? 'income' : 'expense';
+    amount = Math.abs(amount);
+
+    // If no debit/credit but there's a direct amount field, use that
+    if (debitValue === 0 && creditValue === 0 && amountIndex !== -1) {
       const amountValue = parseFloat(row[headers[amountIndex]]?.toString().replace(/[^-\d.]/g, '') || '0');
       amount = Math.abs(amountValue);
       type = amountValue < 0 ? 'expense' : 'income';
@@ -98,6 +95,8 @@ export const processTransactionData = (
         // New French accounting fields
         ecriture_date: ecritureDate.toString(),
         ecriture_lib: ecritureLib.toString(),
+        debit: debitValue || undefined,
+        credit: creditValue || undefined,
       };
 
       // Add optional fields if they exist
@@ -110,7 +109,7 @@ export const processTransactionData = (
       optionalFields.forEach(field => {
         const fieldIndex = findField(field, headers);
         if (fieldIndex !== -1 && row[headers[fieldIndex]]) {
-          if (field === 'debit' || field === 'credit' || field === 'montant_devise') {
+          if (field === 'montant_devise') {
             transaction[field] = parseFloat(row[headers[fieldIndex]]?.toString().replace(/[^-\d.]/g, '') || '0');
           } else {
             transaction[field] = row[headers[fieldIndex]]?.toString();
