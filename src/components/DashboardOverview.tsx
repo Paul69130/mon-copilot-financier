@@ -28,7 +28,24 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
     return Math.abs(credit - debit);
   };
 
-  // Filter transactions by category type and calculate totals
+  // Helper function to determine transaction type based on category type
+  const getTransactionType = (transaction: Transaction): 'income' | 'expense' | 'balance_sheet' => {
+    const category = getCategoryById(transaction.category_id);
+    if (!category) return 'expense'; // Default fallback
+    
+    switch (category.type) {
+      case 'income':
+        return 'income';
+      case 'expense':
+        return 'expense';
+      case 'BS':
+        return 'balance_sheet';
+      default:
+        return 'expense';
+    }
+  };
+
+  // Filter transactions by category type
   const incomeTransactions = transactions.filter(t => {
     const category = getCategoryById(t.category_id);
     return category?.type === 'income';
@@ -45,10 +62,13 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 
   const totalBudget = budget.reduce((sum, b) => sum + b.budget_amount, 0);
   const budgetVariance = totalExpenses - budget
-    .filter(b => categories.find(c => c.id === b.category_id)?.type === 'expense')
+    .filter(b => {
+      const category = categories.find(c => c.id === b.category_id);
+      return category?.type === 'expense';
+    })
     .reduce((sum, b) => sum + b.budget_amount, 0);
 
-  // Category data for charts - now properly using transaction amounts
+  // Category data for charts - using category type for proper classification
   const categoryData = categories.map(category => {
     const budgetItem = budget.find(b => b.category_id === category.id);
     const categoryTransactions = transactions.filter(t => t.category_id === category.id);
