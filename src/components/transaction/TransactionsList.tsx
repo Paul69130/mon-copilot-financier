@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Transaction, Category } from '@/types/financial';
+import { Lock } from 'lucide-react';
 
 interface TransactionsListProps {
   transactions: Transaction[];
@@ -21,7 +22,10 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
     return credit - debit;
   };
 
-  const getTransactionType = (transaction: Transaction): 'income' | 'expense' => {
+  const getTransactionType = (transaction: Transaction): 'income' | 'expense' | 'balance_sheet' => {
+    const category = categories.find(c => c.id === transaction.category_id);
+    if (category?.type === 'BS') return 'balance_sheet';
+    
     const amount = calculateAmount(transaction);
     return amount >= 0 ? 'income' : 'expense';
   };
@@ -30,12 +34,34 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
     return Math.abs(calculateAmount(transaction));
   };
 
+  const getCategoryInfo = (transaction: Transaction) => {
+    return categories.find(c => c.id === transaction.category_id);
+  };
+
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'income': return 'text-green-600';
+      case 'expense': return 'text-red-600';
+      case 'balance_sheet': return 'text-blue-600';
+      default: return 'text-gray-600';
+    }
+  };
+
+  const getTypeBadgeColor = (type: string) => {
+    switch (type) {
+      case 'income': return 'bg-green-500';
+      case 'expense': return 'bg-red-500';
+      case 'balance_sheet': return 'bg-blue-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Recent Transactions</CardTitle>
         <CardDescription>
-          {transactions.length} transactions total
+          {transactions.length} transactions total - automatically categorized by French chart of accounts
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -50,6 +76,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
               .map((transaction) => {
                 const transactionType = getTransactionType(transaction);
                 const displayAmount = getDisplayAmount(transaction);
+                const category = getCategoryInfo(transaction);
                 
                 return (
                   <div
@@ -71,13 +98,24 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                             {transaction.piece_ref && (
                               <p>Pièce: {transaction.piece_ref}</p>
                             )}
+                            {category && (
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className="w-3 h-3 rounded"
+                                  style={{ backgroundColor: category.color }}
+                                />
+                                <span className="flex items-center gap-1">
+                                  {category.name}
+                                  {category.is_system_category && <Lock className="h-3 w-3" />}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className={`font-semibold ${
-                            transactionType === 'income' ? 'text-green-600' : 'text-red-600'
-                          }`}>
-                            {transactionType === 'income' ? '+' : '-'}${displayAmount.toLocaleString()}
+                          <p className={`font-semibold ${getTypeColor(transactionType)}`}>
+                            {transactionType === 'income' ? '+' : transactionType === 'expense' ? '-' : ''}
+                            ${displayAmount.toLocaleString()}
                           </p>
                           {(transaction.debit || transaction.credit) && (
                             <div className="text-xs text-gray-500">
@@ -85,8 +123,9 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                               {transaction.credit && <p>C: ${transaction.credit.toLocaleString()}</p>}
                             </div>
                           )}
-                          <Badge className="text-white text-xs bg-gray-500">
-                            {transactionType === 'income' ? 'Income' : 'Expense'}
+                          <Badge className={`text-white text-xs ${getTypeBadgeColor(transactionType)}`}>
+                            {transactionType === 'income' ? 'Income' : 
+                             transactionType === 'expense' ? 'Expense' : 'Balance Sheet'}
                           </Badge>
                         </div>
                       </div>

@@ -46,33 +46,40 @@ export type Database = {
       }
       categories: {
         Row: {
+          account_prefix: string | null
           color: string
           created_at: string | null
           id: string
+          is_system_category: boolean | null
           name: string
-          type: Database["public"]["Enums"]["transaction_type"]
+          type: Database["public"]["Enums"]["category_type"]
           updated_at: string | null
         }
         Insert: {
+          account_prefix?: string | null
           color?: string
           created_at?: string | null
           id?: string
+          is_system_category?: boolean | null
           name: string
-          type: Database["public"]["Enums"]["transaction_type"]
+          type: Database["public"]["Enums"]["category_type"]
           updated_at?: string | null
         }
         Update: {
+          account_prefix?: string | null
           color?: string
           created_at?: string | null
           id?: string
+          is_system_category?: boolean | null
           name?: string
-          type?: Database["public"]["Enums"]["transaction_type"]
+          type?: Database["public"]["Enums"]["category_type"]
           updated_at?: string | null
         }
         Relationships: []
       }
       transactions: {
         Row: {
+          category_id: string | null
           comp_aux_lib: string | null
           comp_aux_num: string | null
           compte_lib: string | null
@@ -99,6 +106,7 @@ export type Database = {
           valid_date: string | null
         }
         Insert: {
+          category_id?: string | null
           comp_aux_lib?: string | null
           comp_aux_num?: string | null
           compte_lib?: string | null
@@ -125,6 +133,7 @@ export type Database = {
           valid_date?: string | null
         }
         Update: {
+          category_id?: string | null
           comp_aux_lib?: string | null
           comp_aux_num?: string | null
           compte_lib?: string | null
@@ -150,17 +159,29 @@ export type Database = {
           updated_at?: string | null
           valid_date?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "transactions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_category_for_compte_num: {
+        Args: { compte_num_param: string }
+        Returns: string
+      }
     }
     Enums: {
       budget_period: "monthly" | "quarterly" | "yearly"
+      category_type: "income" | "expense" | "BS"
       transaction_type: "income" | "expense"
     }
     CompositeTypes: {
@@ -278,6 +299,7 @@ export const Constants = {
   public: {
     Enums: {
       budget_period: ["monthly", "quarterly", "yearly"],
+      category_type: ["income", "expense", "BS"],
       transaction_type: ["income", "expense"],
     },
   },

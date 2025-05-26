@@ -4,6 +4,7 @@ export interface Transaction {
   source?: string;
   created_at?: string;
   updated_at?: string;
+  category_id?: string;
   
   // French accounting fields (primary)
   journal_code?: string;
@@ -32,7 +33,9 @@ export interface Category {
   id: string;
   name: string;
   color: string;
-  type: 'income' | 'expense';
+  type: 'income' | 'expense' | 'BS';
+  account_prefix?: string;
+  is_system_category?: boolean;
   created_at?: string;
   updated_at?: string;
 }

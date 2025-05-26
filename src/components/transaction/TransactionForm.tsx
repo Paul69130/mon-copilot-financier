@@ -4,9 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Transaction, Category } from '@/types/financial';
 import { useToast } from "@/hooks/use-toast";
+import { Info } from 'lucide-react';
 
 interface TransactionFormProps {
   categories: Category[];
@@ -67,9 +67,18 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, onAddTran
 
     toast({
       title: "Transaction Added",
-      description: "Transaction has been successfully added.",
+      description: "Transaction has been successfully added and automatically categorized.",
     });
   };
+
+  // Helper function to show which category will be assigned based on compte_num
+  const getPreviewCategory = () => {
+    if (!newTransaction.compte_num) return null;
+    const firstDigit = newTransaction.compte_num.charAt(0);
+    return categories.find(c => c.account_prefix === firstDigit && c.is_system_category);
+  };
+
+  const previewCategory = getPreviewCategory();
 
   return (
     <Card>
@@ -79,6 +88,15 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, onAddTran
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
+          {/* Info about automatic categorization */}
+          <div className="bg-blue-50 p-3 rounded-lg flex items-start gap-2">
+            <Info className="h-4 w-4 text-blue-600 mt-0.5" />
+            <div className="text-sm text-blue-800">
+              <p className="font-medium">Automatic categorization</p>
+              <p>Categories are automatically assigned based on the first digit of the account number (compte_num) according to the French chart of accounts.</p>
+            </div>
+          </div>
+
           {/* Primary fields */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
@@ -132,6 +150,15 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, onAddTran
                   value={newTransaction.compte_num}
                   onChange={(e) => setNewTransaction(prev => ({ ...prev, compte_num: e.target.value }))}
                 />
+                {previewCategory && (
+                  <div className="mt-1 text-xs text-green-600 flex items-center gap-1">
+                    <div
+                      className="w-2 h-2 rounded"
+                      style={{ backgroundColor: previewCategory.color }}
+                    />
+                    Will be categorized as: {previewCategory.name}
+                  </div>
+                )}
               </div>
               <div>
                 <Label htmlFor="compte_lib">Libellé Compte</Label>
