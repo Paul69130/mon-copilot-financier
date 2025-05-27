@@ -18,7 +18,7 @@ export const useFinancialCalculations = (
     return Math.abs(credit - debit);
   };
 
-  // Filter transactions by category type
+  // Filter transactions by category type (transactions are already filtered by fiscal year in the parent component)
   const incomeTransactions = transactions.filter(t => {
     const category = getCategoryById(t.category_id);
     return category?.type === 'income';
@@ -41,7 +41,7 @@ export const useFinancialCalculations = (
     })
     .reduce((sum, b) => sum + b.budget_amount, 0);
 
-  // Category data for charts - using category type for proper classification
+  // Category data for charts - using filtered transactions
   const categoryData = categories.map(category => {
     const budgetItem = budget.find(b => b.category_id === category.id);
     const categoryTransactions = transactions.filter(t => t.category_id === category.id);
@@ -69,12 +69,36 @@ export const useFinancialCalculations = (
     })
     .filter(d => d.value > 0);
 
-  // Generate trend data (mock data for demonstration)
-  const trendData = Array.from({ length: 12 }, (_, i) => ({
-    month: new Date(2024, i).toLocaleDateString('en-US', { month: 'short' }),
-    income: Math.random() * 20000 + 30000,
-    expenses: Math.random() * 15000 + 20000,
-  }));
+  // Generate trend data based on filtered transactions (group by month)
+  const trendData = Array.from({ length: 12 }, (_, i) => {
+    const monthStart = new Date(2024, i, 1);
+    const monthEnd = new Date(2024, i + 1, 0);
+    
+    const monthTransactions = transactions.filter(t => {
+      const transactionDate = new Date(t.ecriture_date);
+      return transactionDate >= monthStart && transactionDate <= monthEnd;
+    });
+    
+    const monthIncome = monthTransactions
+      .filter(t => {
+        const category = getCategoryById(t.category_id);
+        return category?.type === 'income';
+      })
+      .reduce((sum, t) => sum + calculateTransactionAmount(t), 0);
+      
+    const monthExpenses = monthTransactions
+      .filter(t => {
+        const category = getCategoryById(t.category_id);
+        return category?.type === 'expense';
+      })
+      .reduce((sum, t) => sum + calculateTransactionAmount(t), 0);
+    
+    return {
+      month: monthStart.toLocaleDateString('en-US', { month: 'short' }),
+      income: monthIncome,
+      expenses: monthExpenses,
+    };
+  });
 
   return {
     totalIncome,
