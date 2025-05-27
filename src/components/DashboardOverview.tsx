@@ -25,6 +25,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
     budgetVariance,
     incomeTransactionCount,
     expenseTransactionCount,
+    unclassifiedTransactionCount,
     categoryData,
     expenseData,
     trendData
@@ -40,6 +41,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         budgetVariance={budgetVariance}
         incomeTransactionCount={incomeTransactionCount}
         expenseTransactionCount={expenseTransactionCount}
+        unclassifiedTransactionCount={unclassifiedTransactionCount}
       />
 
       {/* Charts */}

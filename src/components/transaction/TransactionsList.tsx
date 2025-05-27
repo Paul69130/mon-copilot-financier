@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Transaction, Category } from '@/types/financial';
-import { Lock } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 interface TransactionsListProps {
   transactions: Transaction[];
@@ -22,7 +22,9 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
     return credit - debit;
   };
 
-  const getTransactionType = (transaction: Transaction): 'income' | 'expense' | 'balance_sheet' => {
+  const getTransactionType = (transaction: Transaction): 'income' | 'expense' | 'balance_sheet' | 'unclassified' => {
+    if (!transaction.category_id) return 'unclassified';
+    
     const category = categories.find(c => c.id === transaction.category_id);
     if (category?.type === 'BS') return 'balance_sheet';
     
@@ -43,6 +45,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
       case 'income': return 'text-green-600';
       case 'expense': return 'text-red-600';
       case 'balance_sheet': return 'text-blue-600';
+      case 'unclassified': return 'text-orange-600';
       default: return 'text-gray-600';
     }
   };
@@ -52,16 +55,35 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
       case 'income': return 'bg-green-500';
       case 'expense': return 'bg-red-500';
       case 'balance_sheet': return 'bg-blue-500';
+      case 'unclassified': return 'bg-orange-500';
       default: return 'bg-gray-500';
     }
   };
+
+  const getTypeLabel = (type: string) => {
+    switch (type) {
+      case 'income': return 'Income';
+      case 'expense': return 'Expense';
+      case 'balance_sheet': return 'Balance Sheet';
+      case 'unclassified': return 'Unclassified';
+      default: return 'Unknown';
+    }
+  };
+
+  // Count unclassified transactions
+  const unclassifiedCount = transactions.filter(t => !t.category_id).length;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Recent Transactions</CardTitle>
         <CardDescription>
-          {transactions.length} transactions total - automatically categorized by French chart of accounts
+          {transactions.length} transactions total
+          {unclassifiedCount > 0 && (
+            <span className="ml-2 text-orange-600 font-medium">
+              ({unclassifiedCount} unclassified)
+            </span>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -98,23 +120,27 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                             {transaction.piece_ref && (
                               <p>Pièce: {transaction.piece_ref}</p>
                             )}
-                            {category && (
+                            {category ? (
                               <div className="flex items-center gap-2">
                                 <div
                                   className="w-3 h-3 rounded"
                                   style={{ backgroundColor: category.color }}
                                 />
-                                <span className="flex items-center gap-1">
-                                  {category.name}
-                                  {category.is_system_category && <Lock className="h-3 w-3" />}
-                                </span>
+                                <span>{category.name}</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2 text-orange-600">
+                                <AlertTriangle className="h-3 w-3" />
+                                <span>No category assigned</span>
                               </div>
                             )}
                           </div>
                         </div>
                         <div className="text-right">
                           <p className={`font-semibold ${getTypeColor(transactionType)}`}>
-                            {transactionType === 'income' ? '+' : transactionType === 'expense' ? '-' : ''}
+                            {transactionType === 'income' ? '+' : 
+                             transactionType === 'expense' ? '-' : 
+                             transactionType === 'unclassified' ? '±' : ''}
                             ${displayAmount.toLocaleString()}
                           </p>
                           {(transaction.debit || transaction.credit) && (
@@ -124,8 +150,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                             </div>
                           )}
                           <Badge className={`text-white text-xs ${getTypeBadgeColor(transactionType)}`}>
-                            {transactionType === 'income' ? 'Income' : 
-                             transactionType === 'expense' ? 'Expense' : 'Balance Sheet'}
+                            {getTypeLabel(transactionType)}
                           </Badge>
                         </div>
                       </div>

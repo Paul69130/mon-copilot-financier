@@ -19,6 +19,7 @@ export const useFinancialCalculations = (
   };
 
   // Filter transactions by category type (transactions are already filtered by fiscal year in the parent component)
+  // Only include transactions that have categories assigned
   const incomeTransactions = transactions.filter(t => {
     const category = getCategoryById(t.category_id);
     return category?.type === 'income';
@@ -28,6 +29,9 @@ export const useFinancialCalculations = (
     const category = getCategoryById(t.category_id);
     return category?.type === 'expense';
   });
+
+  // Count unclassified transactions (those without categories)
+  const unclassifiedTransactions = transactions.filter(t => !t.category_id);
 
   const totalIncome = incomeTransactions.reduce((sum, t) => sum + calculateTransactionAmount(t), 0);
   const totalExpenses = expenseTransactions.reduce((sum, t) => sum + calculateTransactionAmount(t), 0);
@@ -107,6 +111,7 @@ export const useFinancialCalculations = (
     budgetVariance,
     incomeTransactionCount: incomeTransactions.length,
     expenseTransactionCount: expenseTransactions.length,
+    unclassifiedTransactionCount: unclassifiedTransactions.length,
     categoryData,
     expenseData,
     trendData
