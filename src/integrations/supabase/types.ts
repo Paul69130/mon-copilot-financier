@@ -77,6 +77,33 @@ export type Database = {
         }
         Relationships: []
       }
+      fiscal_years: {
+        Row: {
+          created_at: string | null
+          end_date: string
+          id: string
+          name: string
+          start_date: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_date: string
+          id?: string
+          name: string
+          start_date: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          name?: string
+          start_date?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           category_id: string | null
@@ -92,6 +119,7 @@ export type Database = {
           ecriture_let: string | null
           ecriture_lib: string
           ecriture_num: string | null
+          fiscal_year_id: string | null
           id: string
           idevise: string | null
           journal_code: string | null
@@ -119,6 +147,7 @@ export type Database = {
           ecriture_let?: string | null
           ecriture_lib: string
           ecriture_num?: string | null
+          fiscal_year_id?: string | null
           id?: string
           idevise?: string | null
           journal_code?: string | null
@@ -146,6 +175,7 @@ export type Database = {
           ecriture_let?: string | null
           ecriture_lib?: string
           ecriture_num?: string | null
+          fiscal_year_id?: string | null
           id?: string
           idevise?: string | null
           journal_code?: string | null
@@ -167,6 +197,13 @@ export type Database = {
             referencedRelation: "categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "transactions_fiscal_year_id_fkey"
+            columns: ["fiscal_year_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_years"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
@@ -176,6 +213,10 @@ export type Database = {
     Functions: {
       get_category_for_compte_num: {
         Args: { compte_num_param: string }
+        Returns: string
+      }
+      get_fiscal_year_for_date: {
+        Args: { ecriture_date_param: string }
         Returns: string
       }
     }

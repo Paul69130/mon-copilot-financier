@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,14 +9,16 @@ import CategoryManager from '@/components/CategoryManager';
 import { useCategories } from '@/hooks/useCategories';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useBudget } from '@/hooks/useBudget';
+import { useFiscalYears } from '@/hooks/useFiscalYears';
 import { Category } from '@/types/financial';
 
 const Index = () => {
   const { categories, loading: categoriesLoading, addCategory, updateCategories, refetch: refetchCategories } = useCategories();
   const { transactions, loading: transactionsLoading, addTransaction, updateTransaction, refetch: refetchTransactions } = useTransactions();
   const { budget, loading: budgetLoading, updateBudget } = useBudget();
+  const { fiscalYears, currentFiscalYear, loading: fiscalYearsLoading } = useFiscalYears();
 
-  const isLoading = categoriesLoading || transactionsLoading || budgetLoading;
+  const isLoading = categoriesLoading || transactionsLoading || budgetLoading || fiscalYearsLoading;
 
   // Handle adding category with async function
   const handleAddCategory = async (category: Omit<Category, 'id'>): Promise<string> => {
@@ -42,6 +45,13 @@ const Index = () => {
           <p className="text-lg text-gray-600">
             Analyze your financial performance with transaction tracking, budget comparison, and forecasting
           </p>
+          {currentFiscalYear && (
+            <div className="mt-2">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                Current Fiscal Year: {currentFiscalYear.name}
+              </span>
+            </div>
+          )}
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">

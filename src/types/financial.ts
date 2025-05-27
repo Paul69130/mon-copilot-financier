@@ -5,6 +5,7 @@ export interface Transaction {
   created_at?: string;
   updated_at?: string;
   category_id?: string;
+  fiscal_year_id?: string;
   
   // French accounting fields (primary)
   journal_code?: string;
@@ -45,6 +46,15 @@ export interface BudgetItem {
   category_id: string;
   budget_amount: number;
   period: 'monthly' | 'quarterly' | 'yearly';
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface FiscalYear {
+  id: string;
+  name: string;
+  start_date: string;
+  end_date: string;
   created_at?: string;
   updated_at?: string;
 }

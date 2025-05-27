@@ -11,7 +11,10 @@ export const useTransactions = () => {
     try {
       const { data, error } = await supabase
         .from('transactions')
-        .select('*')
+        .select(`
+          *,
+          fiscal_year:fiscal_years(*)
+        `)
         .order('ecriture_date', { ascending: false });
       
       if (error) {
@@ -32,7 +35,10 @@ export const useTransactions = () => {
       const { data, error } = await supabase
         .from('transactions')
         .insert([transaction])
-        .select()
+        .select(`
+          *,
+          fiscal_year:fiscal_years(*)
+        `)
         .single();
       
       if (error) {
@@ -52,7 +58,10 @@ export const useTransactions = () => {
         .from('transactions')
         .update(updates)
         .eq('id', id)
-        .select()
+        .select(`
+          *,
+          fiscal_year:fiscal_years(*)
+        `)
         .single();
       
       if (error) {
