@@ -1,16 +1,17 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DashboardOverview from '@/components/DashboardOverview';
 import TransactionManager from '@/components/TransactionManager';
 import BudgetAnalysis from '@/components/BudgetAnalysis';
 import CategoryManager from '@/components/CategoryManager';
+import FiscalYearFilter from '@/components/FiscalYearFilter';
 import { useCategories } from '@/hooks/useCategories';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useBudget } from '@/hooks/useBudget';
 import { useFiscalYears } from '@/hooks/useFiscalYears';
-import { Category } from '@/types/financial';
+import { Category, FiscalYear } from '@/types/financial';
 
 const Index = () => {
   const { categories, loading: categoriesLoading, addCategory, updateCategories, refetch: refetchCategories } = useCategories();
@@ -18,7 +19,14 @@ const Index = () => {
   const { budget, loading: budgetLoading, updateBudget } = useBudget();
   const { fiscalYears, currentFiscalYear, loading: fiscalYearsLoading } = useFiscalYears();
 
+  const [selectedFiscalYear, setSelectedFiscalYear] = useState<FiscalYear | null>(currentFiscalYear);
+
   const isLoading = categoriesLoading || transactionsLoading || budgetLoading || fiscalYearsLoading;
+
+  // Filter transactions based on selected fiscal year
+  const filteredTransactions = selectedFiscalYear 
+    ? transactions.filter(transaction => transaction.fiscal_year_id === selectedFiscalYear.id)
+    : transactions;
 
   // Handle adding category with async function
   const handleAddCategory = async (category: Omit<Category, 'id'>): Promise<string> => {
@@ -45,13 +53,13 @@ const Index = () => {
           <p className="text-lg text-gray-600">
             Analyze your financial performance with transaction tracking, budget comparison, and forecasting
           </p>
-          {currentFiscalYear && (
-            <div className="mt-2">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                Current Fiscal Year: {currentFiscalYear.name}
-              </span>
-            </div>
-          )}
+          <div className="mt-4">
+            <FiscalYearFilter
+              fiscalYears={fiscalYears}
+              selectedFiscalYear={selectedFiscalYear}
+              onFiscalYearChange={setSelectedFiscalYear}
+            />
+          </div>
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
@@ -64,7 +72,7 @@ const Index = () => {
 
           <TabsContent value="overview" className="space-y-6">
             <DashboardOverview 
-              transactions={transactions}
+              transactions={filteredTransactions}
               categories={categories}
               budget={budget}
             />
@@ -72,7 +80,7 @@ const Index = () => {
 
           <TabsContent value="transactions" className="space-y-6">
             <TransactionManager
-              transactions={transactions}
+              transactions={filteredTransactions}
               categories={categories}
               onAddTransaction={addTransaction}
               onUpdateTransaction={updateTransaction}
@@ -81,7 +89,7 @@ const Index = () => {
 
           <TabsContent value="budget" className="space-y-6">
             <BudgetAnalysis
-              transactions={transactions}
+              transactions={filteredTransactions}
               categories={categories}
               budget={budget}
               onUpdateBudget={updateBudget}
