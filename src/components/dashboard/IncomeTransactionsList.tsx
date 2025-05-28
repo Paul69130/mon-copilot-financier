@@ -17,7 +17,9 @@ const IncomeTransactionsList: React.FC<IncomeTransactionsListProps> = ({
 }) => {
   // Helper function to get category by id
   const getCategoryById = (categoryId: string | undefined) => {
-    return categories.find(cat => cat.id === categoryId);
+    const category = categories.find(cat => cat.id === categoryId);
+    console.log(`Looking for category with ID: ${categoryId}, found:`, category);
+    return category;
   };
 
   // Helper function to calculate transaction amount from debit/credit
@@ -27,11 +29,41 @@ const IncomeTransactionsList: React.FC<IncomeTransactionsListProps> = ({
     return Math.abs(credit - debit);
   };
 
+  console.log('Total transactions received:', transactions.length);
+  console.log('Total categories received:', categories.length);
+  console.log('Categories:', categories.map(c => ({ id: c.id, name: c.name, type: c.type })));
+
   // Filter transactions for income only (same logic as in useFinancialCalculations)
   const incomeTransactions = transactions.filter(t => {
+    console.log(`Checking transaction ${t.ecriture_num}:`, {
+      ecriture_num: t.ecriture_num,
+      category_id: t.category_id,
+      ecriture_lib: t.ecriture_lib,
+      credit: t.credit,
+      debit: t.debit
+    });
+    
     const category = getCategoryById(t.category_id);
-    return category?.type === 'income';
+    const isIncome = category?.type === 'income';
+    
+    console.log(`Transaction ${t.ecriture_num} - Category type: ${category?.type}, Is income: ${isIncome}`);
+    
+    // Special logging for transaction 292
+    if (t.ecriture_num === 292) {
+      console.log('*** TRANSACTION 292 DETAILS ***');
+      console.log('Transaction object:', t);
+      console.log('Category ID:', t.category_id);
+      console.log('Found category:', category);
+      console.log('Category type:', category?.type);
+      console.log('Is income?:', isIncome);
+      console.log('*** END TRANSACTION 292 DETAILS ***');
+    }
+    
+    return isIncome;
   });
+
+  console.log('Filtered income transactions count:', incomeTransactions.length);
+  console.log('Income transactions ecriture_nums:', incomeTransactions.map(t => t.ecriture_num));
 
   const totalIncome = incomeTransactions.reduce((sum, t) => sum + calculateTransactionAmount(t), 0);
 
