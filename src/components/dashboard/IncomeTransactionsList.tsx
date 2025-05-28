@@ -29,9 +29,31 @@ const IncomeTransactionsList: React.FC<IncomeTransactionsListProps> = ({
     return Math.abs(credit - debit);
   };
 
+  console.log('=== INCOME TRANSACTIONS DEBUG ===');
   console.log('Total transactions received:', transactions.length);
   console.log('Total categories received:', categories.length);
-  console.log('Categories:', categories.map(c => ({ id: c.id, name: c.name, type: c.type })));
+  
+  // Log the income category specifically
+  const incomeCategory = categories.find(c => c.id === "c148f59b-45ac-4ce9-8f01-c6ba10cb83f3");
+  console.log('Income category (c148f59b-45ac-4ce9-8f01-c6ba10cb83f3):', incomeCategory);
+  
+  // Log all categories for reference
+  console.log('All categories:', categories.map(c => ({ id: c.id, name: c.name, type: c.type })));
+  
+  // Check for transaction 292 specifically
+  const transaction292 = transactions.find(t => t.ecriture_num === 292);
+  console.log('Transaction 292 found in transactions array:', transaction292);
+  
+  // Check how many transactions have the income category_id
+  const transactionsWithIncomeCategory = transactions.filter(t => t.category_id === "c148f59b-45ac-4ce9-8f01-c6ba10cb83f3");
+  console.log('Transactions with income category_id:', transactionsWithIncomeCategory.length);
+  console.log('Transactions with income category_id details:', transactionsWithIncomeCategory.map(t => ({
+    ecriture_num: t.ecriture_num,
+    ecriture_lib: t.ecriture_lib,
+    category_id: t.category_id,
+    credit: t.credit,
+    debit: t.debit
+  })));
 
   // Filter transactions for income only (same logic as in useFinancialCalculations)
   const incomeTransactions = transactions.filter(t => {
@@ -64,6 +86,7 @@ const IncomeTransactionsList: React.FC<IncomeTransactionsListProps> = ({
 
   console.log('Filtered income transactions count:', incomeTransactions.length);
   console.log('Income transactions ecriture_nums:', incomeTransactions.map(t => t.ecriture_num));
+  console.log('=== END INCOME TRANSACTIONS DEBUG ===');
 
   const totalIncome = incomeTransactions.reduce((sum, t) => sum + calculateTransactionAmount(t), 0);
 
@@ -82,9 +105,18 @@ const IncomeTransactionsList: React.FC<IncomeTransactionsListProps> = ({
       </CardHeader>
       <CardContent>
         {incomeTransactions.length === 0 ? (
-          <p className="text-center text-gray-500 py-8">
-            No income transactions found.
-          </p>
+          <div className="text-center text-gray-500 py-8">
+            <p>No income transactions found.</p>
+            <p className="text-sm mt-2">
+              Debug: {transactions.length} total transactions, {categories.length} categories
+            </p>
+            <p className="text-sm">
+              Income category exists: {incomeCategory ? 'Yes' : 'No'}
+            </p>
+            <p className="text-sm">
+              Transactions with income category: {transactionsWithIncomeCategory.length}
+            </p>
+          </div>
         ) : (
           <div className="max-h-96 overflow-y-auto">
             <Table>
