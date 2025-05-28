@@ -39,17 +39,17 @@ export const transactionService = {
         console.log('NO TRANSACTION FOUND with ID: 799b508f-4c82-4ad8-88fa-7dc61950d1d1');
       }
       
-      // Try different approaches to find ecriture_num 292
-      console.log('Trying different ways to find ecriture_num 292...');
+      // Try different approaches to find ecriture_num "292"
+      console.log('Trying different ways to find ecriture_num "292"...');
       
-      // Try as number (this should be the correct approach)
-      const { data: byNumeric, error: numericError } = await supabase
+      // Try as string (this should be the correct approach now)
+      const { data: byString, error: stringError } = await supabase
         .from('transactions')
         .select('*')
-        .eq('ecriture_num', 292);
+        .eq('ecriture_num', '292');
       
-      console.log('Search by numeric 292:', byNumeric?.length || 0, 'results');
-      if (numericError) console.log('Numeric search error:', numericError);
+      console.log('Search by string "292":', byString?.length || 0, 'results');
+      if (stringError) console.log('String search error:', stringError);
       
       // Get total count of transactions
       const { count, error: countError } = await supabase
@@ -82,10 +82,10 @@ export const transactionService = {
         console.log('Transaction 292 details from main query:', transaction292ById);
       }
       
-      // Check for ecriture_num 292 in different ways
-      const transaction292ByNum = data?.find(t => t.ecriture_num === 292);
+      // Check for ecriture_num "292" as string
+      const transaction292ByNum = data?.find(t => t.ecriture_num === '292');
       
-      console.log('Transaction found by ecriture_num 292 (numeric):', transaction292ByNum ? 'YES' : 'NO');
+      console.log('Transaction found by ecriture_num "292" (string):', transaction292ByNum ? 'YES' : 'NO');
       if (transaction292ByNum) {
         console.log('Transaction 292 by ecriture_num:', transaction292ByNum);
       }
@@ -101,7 +101,7 @@ export const transactionService = {
       // Look for any transactions that might be related to 292
       const relatedTransactions = data?.filter(t => 
         t.ecriture_lib?.includes('292') || 
-        t.ecriture_num === 292 ||
+        t.ecriture_num === '292' ||
         t.id === '799b508f-4c82-4ad8-88fa-7dc61950d1d1'
       );
       

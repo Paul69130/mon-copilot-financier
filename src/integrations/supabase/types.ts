@@ -118,7 +118,7 @@ export type Database = {
           ecriture_date: string
           ecriture_let: string | null
           ecriture_lib: string
-          ecriture_num: number | null
+          ecriture_num: string | null
           fiscal_year_id: string | null
           id: string
           idevise: string | null
@@ -146,7 +146,7 @@ export type Database = {
           ecriture_date: string
           ecriture_let?: string | null
           ecriture_lib: string
-          ecriture_num?: number | null
+          ecriture_num?: string | null
           fiscal_year_id?: string | null
           id?: string
           idevise?: string | null
@@ -174,7 +174,7 @@ export type Database = {
           ecriture_date?: string
           ecriture_let?: string | null
           ecriture_lib?: string
-          ecriture_num?: number | null
+          ecriture_num?: string | null
           fiscal_year_id?: string | null
           id?: string
           idevise?: string | null

@@ -40,9 +40,9 @@ const IncomeTransactionsList: React.FC<IncomeTransactionsListProps> = ({
   // Log all categories for reference
   console.log('All categories:', categories.map(c => ({ id: c.id, name: c.name, type: c.type })));
   
-  // Check for transaction 292 specifically
-  const transaction292 = transactions.find(t => t.ecriture_num === 292);
-  console.log('Transaction 292 found in transactions array:', transaction292);
+  // Check for transaction 292 specifically (now as string)
+  const transaction292 = transactions.find(t => t.ecriture_num === '292');
+  console.log('Transaction "292" found in transactions array:', transaction292);
   
   // Check how many transactions have the income category_id
   const transactionsWithIncomeCategory = transactions.filter(t => t.category_id === "c148f59b-45ac-4ce9-8f01-c6ba10cb83f3");
@@ -70,8 +70,8 @@ const IncomeTransactionsList: React.FC<IncomeTransactionsListProps> = ({
     
     console.log(`Transaction ${t.ecriture_num} - Category type: ${category?.type}, Is income: ${isIncome}`);
     
-    // Special logging for transaction 292
-    if (t.ecriture_num === 292) {
+    // Special logging for transaction "292"
+    if (t.ecriture_num === '292') {
       console.log('*** TRANSACTION 292 DETAILS ***');
       console.log('Transaction object:', t);
       console.log('Category ID:', t.category_id);
@@ -131,9 +131,10 @@ const IncomeTransactionsList: React.FC<IncomeTransactionsListProps> = ({
               <TableBody>
                 {incomeTransactions
                   .sort((a, b) => {
-                    const aNum = a.ecriture_num || 0;
-                    const bNum = b.ecriture_num || 0;
-                    return bNum - aNum; // Sort by ecriture_num in descending order
+                    // Handle string sorting for ecriture_num
+                    const aNum = a.ecriture_num || '';
+                    const bNum = b.ecriture_num || '';
+                    return bNum.localeCompare(aNum, undefined, { numeric: true });
                   })
                   .map((transaction) => {
                     const amount = calculateTransactionAmount(transaction);
