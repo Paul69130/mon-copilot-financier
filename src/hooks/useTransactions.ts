@@ -10,7 +10,40 @@ export const useTransactions = () => {
   const fetchTransactions = async () => {
     try {
       console.log('=== FETCHING TRANSACTIONS FROM DATABASE ===');
+      console.log('Looking specifically for transaction with ID: 799b508f-4c82-4ad8-88fa-7dc61950d1d1');
       
+      // First, let's try to fetch transaction 292 specifically by ID
+      const { data: specificTransaction, error: specificError } = await supabase
+        .from('transactions')
+        .select(`
+          *,
+          fiscal_year:fiscal_years(*)
+        `)
+        .eq('id', '799b508f-4c82-4ad8-88fa-7dc61950d1d1')
+        .single();
+      
+      if (specificError) {
+        console.log('Error fetching specific transaction 292:', specificError);
+      } else {
+        console.log('Transaction 292 found by ID:', specificTransaction);
+      }
+      
+      // Now let's try to fetch transaction 292 by ecriture_num
+      const { data: byEcritureNum, error: ecritureError } = await supabase
+        .from('transactions')
+        .select(`
+          *,
+          fiscal_year:fiscal_years(*)
+        `)
+        .eq('ecriture_num', 292);
+      
+      if (ecritureError) {
+        console.log('Error fetching transaction by ecriture_num 292:', ecritureError);
+      } else {
+        console.log('Transactions with ecriture_num 292:', byEcritureNum);
+      }
+      
+      // Now fetch all transactions as before
       const { data, error } = await supabase
         .from('transactions')
         .select(`
@@ -26,19 +59,24 @@ export const useTransactions = () => {
       
       console.log('Raw data from database - total rows:', data?.length || 0);
       
-      // Check specifically for transaction 292
-      const transaction292 = data?.find(t => t.ecriture_num === 292);
-      console.log('Transaction 292 found in database query:', transaction292);
+      // Check specifically for transaction 292 by ID in the full result set
+      const transaction292ById = data?.find(t => t.id === '799b508f-4c82-4ad8-88fa-7dc61950d1d1');
+      console.log('Transaction 292 found by ID in full results:', transaction292ById);
       
-      if (transaction292) {
+      // Check specifically for transaction 292 by ecriture_num in the full result set
+      const transaction292ByNum = data?.find(t => t.ecriture_num === 292);
+      console.log('Transaction 292 found by ecriture_num in full results:', transaction292ByNum);
+      
+      if (transaction292ByNum) {
         console.log('Transaction 292 details from database:', {
-          id: transaction292.id,
-          ecriture_num: transaction292.ecriture_num,
-          ecriture_lib: transaction292.ecriture_lib,
-          category_id: transaction292.category_id,
-          credit: transaction292.credit,
-          debit: transaction292.debit,
-          ecriture_date: transaction292.ecriture_date
+          id: transaction292ByNum.id,
+          ecriture_num: transaction292ByNum.ecriture_num,
+          ecriture_lib: transaction292ByNum.ecriture_lib,
+          category_id: transaction292ByNum.category_id,
+          credit: transaction292ByNum.credit,
+          debit: transaction292ByNum.debit,
+          ecriture_date: transaction292ByNum.ecriture_date,
+          fiscal_year_id: transaction292ByNum.fiscal_year_id
         });
       } else {
         console.log('Transaction 292 NOT FOUND in database query results');
@@ -49,7 +87,16 @@ export const useTransactions = () => {
         );
         console.log('Transactions containing "292":', similarTransactions?.map(t => ({
           ecriture_num: t.ecriture_num,
-          ecriture_lib: t.ecriture_lib
+          ecriture_lib: t.ecriture_lib,
+          id: t.id
+        })));
+        
+        // Check first 10 transactions for debugging
+        console.log('First 10 transactions in results:', data?.slice(0, 10).map(t => ({
+          id: t.id,
+          ecriture_num: t.ecriture_num,
+          ecriture_lib: t.ecriture_lib,
+          ecriture_date: t.ecriture_date
         })));
       }
       
