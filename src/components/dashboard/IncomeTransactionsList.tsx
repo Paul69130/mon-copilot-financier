@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Transaction, Category } from '@/types/financial';
 import { TrendingUp } from 'lucide-react';
 
@@ -48,70 +49,49 @@ const IncomeTransactionsList: React.FC<IncomeTransactionsListProps> = ({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3 max-h-96 overflow-y-auto">
-          {incomeTransactions.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">
-              No income transactions found.
-            </p>
-          ) : (
-            incomeTransactions
-              .sort((a, b) => new Date(b.ecriture_date).getTime() - new Date(a.ecriture_date).getTime())
-              .map((transaction) => {
-                const category = getCategoryById(transaction.category_id);
-                const amount = calculateTransactionAmount(transaction);
-                
-                return (
-                  <div
-                    key={transaction.id}
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-green-50 transition-colors"
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1">
-                          <p className="font-medium">{transaction.ecriture_lib}</p>
-                          <div className="text-sm text-gray-500 space-y-1">
-                            <p>{transaction.ecriture_date}</p>
-                            {transaction.journal_code && (
-                              <p>Journal: {transaction.journal_code} - {transaction.journal_lib}</p>
-                            )}
-                            {transaction.compte_num && (
-                              <p>Account: {transaction.compte_num} - {transaction.compte_lib}</p>
-                            )}
-                            {transaction.piece_ref && (
-                              <p>Reference: {transaction.piece_ref}</p>
-                            )}
-                            {category && (
-                              <div className="flex items-center gap-2">
-                                <div
-                                  className="w-3 h-3 rounded"
-                                  style={{ backgroundColor: category.color }}
-                                />
-                                <span>{category.name}</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-green-600 text-lg">
-                            +${amount.toLocaleString()}
-                          </p>
-                          {(transaction.debit || transaction.credit) && (
-                            <div className="text-xs text-gray-500">
-                              {transaction.debit && <p>Debit: ${transaction.debit.toLocaleString()}</p>}
-                              {transaction.credit && <p>Credit: ${transaction.credit.toLocaleString()}</p>}
-                            </div>
-                          )}
-                          <Badge className="bg-green-500 text-white text-xs mt-1">
-                            Income
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-          )}
-        </div>
+        {incomeTransactions.length === 0 ? (
+          <p className="text-center text-gray-500 py-8">
+            No income transactions found.
+          </p>
+        ) : (
+          <div className="max-h-96 overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Entry #</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {incomeTransactions
+                  .sort((a, b) => new Date(b.ecriture_date).getTime() - new Date(a.ecriture_date).getTime())
+                  .map((transaction) => {
+                    const amount = calculateTransactionAmount(transaction);
+                    
+                    return (
+                      <TableRow key={transaction.id} className="hover:bg-green-50">
+                        <TableCell className="font-medium">
+                          {transaction.ecriture_num || '-'}
+                        </TableCell>
+                        <TableCell>
+                          {transaction.ecriture_date}
+                        </TableCell>
+                        <TableCell>
+                          {transaction.ecriture_lib}
+                        </TableCell>
+                        <TableCell className="text-right font-semibold text-green-600">
+                          +${amount.toLocaleString()}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                }
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
