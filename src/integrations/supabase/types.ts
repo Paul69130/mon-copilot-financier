@@ -118,7 +118,7 @@ export type Database = {
           ecriture_date: string
           ecriture_let: string | null
           ecriture_lib: string
-          ecriture_num: string | null
+          ecriture_num: number | null
           fiscal_year_id: string | null
           id: string
           idevise: string | null
@@ -146,7 +146,7 @@ export type Database = {
           ecriture_date: string
           ecriture_let?: string | null
           ecriture_lib: string
-          ecriture_num?: string | null
+          ecriture_num?: number | null
           fiscal_year_id?: string | null
           id?: string
           idevise?: string | null
@@ -174,7 +174,7 @@ export type Database = {
           ecriture_date?: string
           ecriture_let?: string | null
           ecriture_lib?: string
-          ecriture_num?: string | null
+          ecriture_num?: number | null
           fiscal_year_id?: string | null
           id?: string
           idevise?: string | null
@@ -211,12 +211,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_category_for_compte_num: {
-        Args: { compte_num_param: string }
+      get_category_for_account: {
+        Args: { account_num: string }
         Returns: string
       }
       get_fiscal_year_for_date: {
-        Args: { ecriture_date_param: string }
+        Args: { transaction_date: string }
         Returns: string
       }
     }

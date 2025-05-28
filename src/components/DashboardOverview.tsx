@@ -6,6 +6,7 @@ import FinancialKPICards from './dashboard/FinancialKPICards';
 import BudgetVsActualChart from './dashboard/BudgetVsActualChart';
 import ExpenseBreakdownChart from './dashboard/ExpenseBreakdownChart';
 import FinancialTrendChart from './dashboard/FinancialTrendChart';
+import IncomeTransactionsList from './dashboard/IncomeTransactionsList';
 
 interface DashboardOverviewProps {
   transactions: Transaction[];
@@ -42,6 +43,12 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         incomeTransactionCount={incomeTransactionCount}
         expenseTransactionCount={expenseTransactionCount}
         unclassifiedTransactionCount={unclassifiedTransactionCount}
+      />
+
+      {/* Income Transactions Detail */}
+      <IncomeTransactionsList 
+        transactions={transactions}
+        categories={categories}
       />
 
       {/* Charts */}
