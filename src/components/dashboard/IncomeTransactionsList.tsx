@@ -66,7 +66,11 @@ const IncomeTransactionsList: React.FC<IncomeTransactionsListProps> = ({
               </TableHeader>
               <TableBody>
                 {incomeTransactions
-                  .sort((a, b) => new Date(b.ecriture_date).getTime() - new Date(a.ecriture_date).getTime())
+                  .sort((a, b) => {
+                    const aNum = a.ecriture_num || 0;
+                    const bNum = b.ecriture_num || 0;
+                    return bNum - aNum; // Sort by ecriture_num in descending order
+                  })
                   .map((transaction) => {
                     const amount = calculateTransactionAmount(transaction);
                     
