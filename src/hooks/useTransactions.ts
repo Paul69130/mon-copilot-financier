@@ -9,6 +9,8 @@ export const useTransactions = () => {
 
   const fetchTransactions = async () => {
     try {
+      console.log('=== FETCHING TRANSACTIONS FROM DATABASE ===');
+      
       const { data, error } = await supabase
         .from('transactions')
         .select(`
@@ -21,6 +23,37 @@ export const useTransactions = () => {
         console.error('Error fetching transactions:', error);
         return;
       }
+      
+      console.log('Raw data from database - total rows:', data?.length || 0);
+      
+      // Check specifically for transaction 292
+      const transaction292 = data?.find(t => t.ecriture_num === 292);
+      console.log('Transaction 292 found in database query:', transaction292);
+      
+      if (transaction292) {
+        console.log('Transaction 292 details from database:', {
+          id: transaction292.id,
+          ecriture_num: transaction292.ecriture_num,
+          ecriture_lib: transaction292.ecriture_lib,
+          category_id: transaction292.category_id,
+          credit: transaction292.credit,
+          debit: transaction292.debit,
+          ecriture_date: transaction292.ecriture_date
+        });
+      } else {
+        console.log('Transaction 292 NOT FOUND in database query results');
+        
+        // Check for transactions with similar numbers
+        const similarTransactions = data?.filter(t => 
+          t.ecriture_num && t.ecriture_num.toString().includes('292')
+        );
+        console.log('Transactions containing "292":', similarTransactions?.map(t => ({
+          ecriture_num: t.ecriture_num,
+          ecriture_lib: t.ecriture_lib
+        })));
+      }
+      
+      console.log('=== END TRANSACTION FETCH DEBUG ===');
       
       setTransactions(data || []);
     } catch (error) {
