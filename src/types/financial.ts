@@ -10,7 +10,7 @@ export interface Transaction {
   // French accounting fields (primary)
   journal_code?: string;
   journal_lib?: string;
-  ecriture_num?: string;
+  ecriture_num?: number; // Changed from string to number to match database
   ecriture_date: string; // Primary date field
   compte_num?: string;
   compte_lib?: string;
