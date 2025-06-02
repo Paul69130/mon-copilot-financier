@@ -8,6 +8,7 @@ import ExpenseBreakdownChart from './dashboard/ExpenseBreakdownChart';
 import FinancialTrendChart from './dashboard/FinancialTrendChart';
 import IncomeTransactionsList from './dashboard/IncomeTransactionsList';
 import IncomeTransactionLogs from './dashboard/IncomeTransactionLogs';
+import UnloggedSalesTransactions from './dashboard/UnloggedSalesTransactions';
 
 interface DashboardOverviewProps {
   transactions: Transaction[];
@@ -45,6 +46,9 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         expenseTransactionCount={expenseTransactionCount}
         unclassifiedTransactionCount={unclassifiedTransactionCount}
       />
+
+      {/* Unlogged Sales Transactions Analysis */}
+      <UnloggedSalesTransactions />
 
       {/* Income Transactions Detail */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
