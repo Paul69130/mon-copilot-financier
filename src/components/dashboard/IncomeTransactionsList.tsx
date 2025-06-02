@@ -29,6 +29,30 @@ const IncomeTransactionsList: React.FC<IncomeTransactionsListProps> = ({
     return Math.abs(credit - debit);
   };
 
+  // SPECIFIC CHECK FOR TRANSACTION 10260
+  const transaction10260 = transactions.find(t => t.ecriture_num === '10260');
+  if (transaction10260) {
+    console.log('=== TRANSACTION 10260 FOUND IN TRANSACTIONS LIST ===');
+    console.log('Transaction 10260 details:', transaction10260);
+    console.log('Transaction 10260 category_id:', transaction10260.category_id);
+    
+    const category10260 = getCategoryById(transaction10260.category_id);
+    if (category10260) {
+      console.log('Transaction 10260 category found:', category10260);
+      console.log('Transaction 10260 category type:', category10260.type);
+      console.log('Transaction 10260 - Is income category?', category10260.type === 'income');
+    } else {
+      console.log('Transaction 10260 - NO CATEGORY FOUND');
+    }
+    
+    console.log('Transaction 10260 amount:', calculateTransactionAmount(transaction10260));
+    console.log('=== END TRANSACTION 10260 CHECK ===');
+  } else {
+    console.log('Transaction 10260 NOT FOUND in current transactions list');
+    console.log('Total transactions in list:', transactions.length);
+    console.log('Sample ecriture_num values:', transactions.slice(0, 5).map(t => t.ecriture_num));
+  }
+
   // Filter transactions for income only
   const incomeTransactions = transactions.filter(t => {
     const category = getCategoryById(t.category_id);
@@ -46,7 +70,9 @@ const IncomeTransactionsList: React.FC<IncomeTransactionsListProps> = ({
         total_transactions: transactions.length,
         income_transactions_found: incomeTransactions.length,
         total_income_amount: totalIncome,
-        categories_used: categories.filter(c => c.type === 'income').map(c => ({ id: c.id, name: c.name }))
+        categories_used: categories.filter(c => c.type === 'income').map(c => ({ id: c.id, name: c.name })),
+        transaction_10260_found: transaction10260 ? 'YES' : 'NO',
+        transaction_10260_category: transaction10260 ? getCategoryById(transaction10260.category_id)?.type : 'N/A'
       },
       component: 'IncomeTransactionsList'
     });

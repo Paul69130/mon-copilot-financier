@@ -24,6 +24,71 @@ export const transactionService = {
         })));
       }
       
+      // SPECIFIC CHECK FOR TRANSACTION 10260
+      console.log('=== ANALYZING TRANSACTION 10260 ===');
+      const { data: transaction10260, error: transaction10260Error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('ecriture_num', '10260');
+      
+      if (transaction10260Error) {
+        console.log('Error fetching transaction 10260:', transaction10260Error);
+      } else {
+        console.log('Transaction(s) with ecriture_num 10260:', transaction10260);
+        
+        if (transaction10260 && transaction10260.length > 0) {
+          for (const trans of transaction10260) {
+            console.log(`Transaction 10260 - ID: ${trans.id}`);
+            console.log(`Transaction 10260 - category_id: ${trans.category_id}`);
+            console.log(`Transaction 10260 - ecriture_lib: ${trans.ecriture_lib}`);
+            console.log(`Transaction 10260 - journal_type: ${trans.journal_type}`);
+            console.log(`Transaction 10260 - credit: ${trans.credit}`);
+            console.log(`Transaction 10260 - debit: ${trans.debit}`);
+            console.log(`Transaction 10260 - fiscal_year_id: ${trans.fiscal_year_id}`);
+            
+            // Check if this transaction has a category
+            if (trans.category_id) {
+              const { data: category, error: categoryError } = await supabase
+                .from('categories')
+                .select('*')
+                .eq('id', trans.category_id)
+                .single();
+                
+              if (categoryError) {
+                console.log(`Error fetching category for transaction 10260:`, categoryError);
+              } else {
+                console.log(`Transaction 10260 - Category found:`, category);
+                console.log(`Transaction 10260 - Category name: ${category.name}`);
+                console.log(`Transaction 10260 - Category type: ${category.type}`);
+                console.log(`Transaction 10260 - Is this an income category? ${category.type === 'income' ? 'YES' : 'NO'}`);
+              }
+            } else {
+              console.log(`Transaction 10260 - NO CATEGORY ASSIGNED (category_id is null)`);
+            }
+            
+            // Check if this transaction is in income_transaction_logs
+            const { data: logEntry, error: logError } = await supabase
+              .from('income_transaction_logs')
+              .select('*')
+              .eq('transaction_id', trans.id);
+              
+            if (logError) {
+              console.log(`Error checking logs for transaction 10260:`, logError);
+            } else {
+              console.log(`Transaction 10260 - Found in income_transaction_logs: ${logEntry && logEntry.length > 0 ? 'YES' : 'NO'}`);
+              if (logEntry && logEntry.length > 0) {
+                console.log(`Transaction 10260 - Log entries:`, logEntry);
+              }
+            }
+            
+            console.log('--- End of transaction 10260 analysis ---');
+          }
+        } else {
+          console.log('NO TRANSACTION FOUND with ecriture_num 10260');
+        }
+      }
+      console.log('=== END TRANSACTION 10260 ANALYSIS ===');
+      
       // Check if transaction with that specific ID exists at all
       const { data: specificTransaction, error: specificError } = await supabase
         .from('transactions')
