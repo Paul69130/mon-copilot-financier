@@ -7,6 +7,7 @@ import BudgetVsActualChart from './dashboard/BudgetVsActualChart';
 import ExpenseBreakdownChart from './dashboard/ExpenseBreakdownChart';
 import FinancialTrendChart from './dashboard/FinancialTrendChart';
 import IncomeTransactionsList from './dashboard/IncomeTransactionsList';
+import IncomeTransactionLogs from './dashboard/IncomeTransactionLogs';
 
 interface DashboardOverviewProps {
   transactions: Transaction[];
@@ -46,10 +47,13 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       />
 
       {/* Income Transactions Detail */}
-      <IncomeTransactionsList 
-        transactions={transactions}
-        categories={categories}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <IncomeTransactionsList 
+          transactions={transactions}
+          categories={categories}
+        />
+        <IncomeTransactionLogs />
+      </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

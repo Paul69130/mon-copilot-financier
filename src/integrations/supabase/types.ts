@@ -104,6 +104,44 @@ export type Database = {
         }
         Relationships: []
       }
+      income_transaction_logs: {
+        Row: {
+          action: string
+          component: string
+          created_at: string
+          details: Json | null
+          id: string
+          transaction_id: string | null
+          user_session: string | null
+        }
+        Insert: {
+          action: string
+          component?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          transaction_id?: string | null
+          user_session?: string | null
+        }
+        Update: {
+          action?: string
+          component?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          transaction_id?: string | null
+          user_session?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "income_transaction_logs_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           category_id: string | null
